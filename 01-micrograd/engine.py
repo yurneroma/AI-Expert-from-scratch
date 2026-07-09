@@ -7,7 +7,8 @@ class Value:
     self._backward = lambda: None
     self.grad = 0.0
 
-  def __add__(self, other:Value):
+  def __add__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
     out = Value(self.data + other.data, (self, other), '+')
     def _backward():
       self.grad += 1.0*out.grad
@@ -16,7 +17,8 @@ class Value:
     out._backward = _backward
     return out
   
-  def __mul__(self, other:Value):
+  def __mul__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
     out = Value(self.data * other.data, (self, other), '*')
     def _backward():
       self.grad += other.data * out.grad
@@ -46,19 +48,29 @@ class Value:
     return self * other**-1
 
   def __radd__(self, other):
-    pass
+    return self + other
+
+  def __rmul__(self, other):
+    return self * other
 
 
   def __repr__(self):
     return f"Value(data={self.data}, children={list(self._prev)}, op={self._op!r})"
 
   def backward(self): 
+
+    """
+      由于每个 Value 对象都保存了它的子节点和操作符，因此我们可以通过反向遍历这个图来计算梯度。
+      每个Value 节点调用_backward(), 把局部系数传递给它的输入节点。
+      所以我们只需要构建一个拓扑排序，然后反向遍历这个图，计算每个节点的梯度。
+    """
     self.grad = 1.0
     topo = []
     visited = set()
 
     def build_topo(v):
       """
+        构建拓扑排序
         Builds a topological ordering of the nodes in the graph ending at v.
       """
       if v not in visited:
