@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math
+from pickle import TRUE
 class Value:
   def __init__(self, data:float, children:tuple=(), op:str=''):
     self.data = data
@@ -118,7 +119,29 @@ class Value:
     out._backward = _backward
     return out
 
-  
+  def grad_check(self, f, inputs, eps=1e-6):
+    # compute the gradient using the backward
+    f_val = f(*inputs)
+    f_val.backward()
+    grads = [x.grad for x in inputs]
+
+    # compute the gradient using the definition
+    cgrad = []
+    for x in inputs:
+      original = x.data
+      x.data = original + eps
+      f_plus = f(*inputs).data
+      x.data = original - eps
+      f_minus = f(*inputs).data
+      x.data = original
+      cgrad.append((f_plus - f_minus) / (2*eps))
+
+    # check if the gradients are close
+    for g, cg in zip(grads, cgrad):
+      assert abs(g - cg) < 1e-4, f"Gradient check failed: {g} != {cg}"
+
+    print("Gradient check passed!")
+    return TRUE
 
   
   
