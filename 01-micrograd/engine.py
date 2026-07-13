@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 class Value:
   def __init__(self, data:float, children:tuple=(), op:str=''):
     self.data = data
@@ -86,8 +87,38 @@ class Value:
       node._backward()
 
 
+  def tanh(self):
+    t = math.tanh(self.data)
+    out = Value(t, (self, ), 'tanh')
+    def _backward():
+      self.grad += (1 - t**2) * out.grad
+    out._backward = _backward
+    return out
+  def relu(self):
+    r = max(0, self.data)
+    out = Value(r, (self, ), 'relu')
+    def _backward():
+      self.grad += (r > 0) * out.grad
+    out._backward = _backward
+    return out
 
+  def exp(self):
+    e = math.exp(self.data)
+    out = Value(e, (self, ), 'exp')
+    def _backward():
+      self.grad += e * out.grad
+    out._backward = _backward
+    return out
 
+  def log(self):
+    l = math.log(self.data)
+    out = Value(l, (self, ), 'log')
+    def _backward():
+      self.grad += 1/self.data * out.grad
+    out._backward = _backward
+    return out
+
+  
 
   
   
