@@ -1,4 +1,4 @@
-from engine import Value
+from engine import Value, grad_check
 
 def test_add():
   a = Value(2.0)
@@ -89,4 +89,12 @@ def test_backward_expression():
   assert a.grad == -3.0
   assert b.grad == 2.0
   assert c.grad == 1.0
+
+def test_grad_check_expression():
+  x = Value(2.0)
+  y = Value(3.0)
+
+  assert grad_check(lambda x, y: x * y + x, [x, y])
+  assert x.grad == 4.0
+  assert y.grad == 2.0
  

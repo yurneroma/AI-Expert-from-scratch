@@ -1,11 +1,19 @@
 from __future__ import annotations
 import math
-from pickle import TRUE
+
+
 class Value:
-  def __init__(self, data:float, children:tuple=(), op:str=''):
+  def __init__(
+    self,
+    data: float,
+    children: tuple = (),
+    op: str = '',
+    label: str = '',
+  ):
     self.data = data
     self._prev = set(children)
     self._op = op
+    self.label = label
     self._backward = lambda: None
     self.grad = 0.0
 
@@ -119,29 +127,43 @@ class Value:
     out._backward = _backward
     return out
 
-  def grad_check(self, f, inputs, eps=1e-6):
-    # compute the gradient using the backward
-    f_val = f(*inputs)
-    f_val.backward()
-    grads = [x.grad for x in inputs]
+def grad_check(f, inputs, eps=1e-6):
+  """ 
+    根据微分的定义， delta(eps)的变化量带来的f 的变化，他们之间的比值就是导数
+    那么数值计算得出的导数的结果应该和自动微分的结果一致。 
+  """
+  for value in inputs:
+    value.grad = 0.0
 
-    # compute the gradient using the definition
-    cgrad = []
-    for x in inputs:
-      original = x.data
-      x.data = original + eps
+  output = f(*inputs)
+  output.backward()
+  # 自动微分的结果
+  analytical_grads = [value.grad for value in inputs]
+
+  numerical_grads = []
+  # delta 数值计算的微分结果
+  for value in inputs:
+    original = value.data
+
+    try:
+      value.data = original + eps
       f_plus = f(*inputs).data
-      x.data = original - eps
+
+      value.data = original - eps
       f_minus = f(*inputs).data
-      x.data = original
-      cgrad.append((f_plus - f_minus) / (2*eps))
+    finally:
+      value.data = original
 
-    # check if the gradients are close
-    for g, cg in zip(grads, cgrad):
-      assert abs(g - cg) < 1e-4, f"Gradient check failed: {g} != {cg}"
+    numerical_grads.append((f_plus - f_minus) / (2 * eps))
 
-    print("Gradient check passed!")
-    return TRUE
+  for analytical, numerical in zip(analytical_grads, numerical_grads):
+    error = abs(analytical - numerical)
+    assert error < 1e-4, (
+      "Gradient check failed: "
+      f"analytical={analytical}, "
+      f"numerical={numerical}, "
+      f"error={error}"
+    )
 
-  
-  
+  print("Gradient check passed!")
+  return True
