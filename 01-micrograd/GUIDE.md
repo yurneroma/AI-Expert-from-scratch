@@ -46,8 +46,8 @@ class Value:
 - 加分项: graphviz 可视化计算图
 
 **DoD**:
-- [ ] 所有 op 通过数值梯度验证（相对误差 < 1e-4）
-- [ ] commit + push
+- [x ] 所有 op 通过数值梯度验证（相对误差 < 1e-4）
+- [x ] commit + push
 
 ## Day 4 (06-13): Neuron / Layer / MLP
 
