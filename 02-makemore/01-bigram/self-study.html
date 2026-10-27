@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bigram 自学讲义</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+<style>
+  :root { color-scheme: light; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body { max-width: 940px; margin: 0 auto; padding: 60px 44px 90px; color: #182c35; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; font-size: 17px; line-height: 1.95; }
+  header { margin-bottom: 44px; padding-bottom: 24px; border-bottom: 2px solid #176b70; }
+  header h1.title { font-size: 36px; line-height: 1.35; margin: 0 0 14px; padding: 0; }
+  header .subtitle { font-size: 19px; color: #566773; margin: 0; }
+  h1 { font-size: 27px; line-height: 1.5; margin: 56px 0 24px; }
+  h2 { font-size: 21px; line-height: 1.6; margin: 34px 0 14px; }
+  p { margin: 14px 0; }
+  a { color: #176b70; text-underline-offset: 3px; }
+  strong { font-weight: 650; }
+  ul,ol { padding-left: 1.5em; }
+  li { margin: 7px 0; }
+  hr { border: 0; border-top: 1px solid #d4dfdf; margin: 48px 0 0; }
+  pre { background: #f4f7f7; padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.7; border: 1px solid #d4dfdf; border-radius: 4px; }
+  code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+  pre code { font-size: 1em; }
+  table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 15px; line-height: 1.7; }
+  th,td { border-bottom: 1px solid #d4dfdf; padding: 12px 10px; vertical-align: top; }
+  th { text-align: left; background: #f4f7f7; }
+  math { font-size: 1.1em; font-family: "STIX Two Math", "Cambria Math", math; }
+  .math.display { display: block; overflow-x: auto; margin: 22px 0; padding: 12px 4px; }
+  .math.display math { margin: auto; }
+  #TOC { background: #f4f7f7; padding: 18px 22px; margin: 0 0 44px; border: 1px solid #d4dfdf; border-radius: 4px; font-size: 14px; line-height: 1.6; }
+  #TOC::before { content: "阅读导航 · 建议分三次完成"; display: block; font-weight: 650; margin-bottom: 12px; }
+  #TOC ul { list-style: none; padding: 0; margin: 0; }
+  #TOC li { margin: 0; padding: 0; }
+  #TOC a { display: block; text-decoration: none; padding: 5px 0; }
+  #TOC a:hover { text-decoration: underline; }
+  @media (min-width: 1400px) { body { margin-left: calc(50% - 315px); } #TOC { position: fixed; left: max(24px, calc(50% - 680px)); top: 30px; width: 300px; max-height: calc(100vh - 60px); overflow-y: auto; } }
+  @media (max-width: 650px) { body { padding: 28px 20px 64px; font-size: 16px; } header h1.title { font-size: 30px; } h1 { font-size: 23px; } h2 { font-size: 19px; } table { display: block; overflow-x: auto; font-size: 14px; } }
+  @media print { body { padding: 0; max-width: none; font-size: 11pt; line-height: 1.65; } #TOC { position: static; width: auto; max-height: none; break-after: page; } h1,h2 { break-after: avoid; } pre,table,.math.display { break-inside: avoid; } a { color: inherit; } }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Bigram 自学讲义</h1>
+<p class="subtitle">从语言建模的目的，到计数、概率、损失与梯度</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#阅读起点" id="toc-阅读起点">阅读起点</a></li>
+<li><a href="#为什么要让模型预测下一个字符"
+id="toc-为什么要让模型预测下一个字符">1.
+为什么要让模型预测下一个字符</a></li>
+<li><a href="#概率补课整段文字与下一步预测怎样连起来"
+id="toc-概率补课整段文字与下一步预测怎样连起来">2.
+概率补课：整段文字与下一步预测怎样连起来</a></li>
+<li><a href="#bigram-的假设为了能估计先少看一点历史"
+id="toc-bigram-的假设为了能估计先少看一点历史">3. Bigram
+的假设：为了能估计，先少看一点历史</a></li>
+<li><a href="#贯穿例子只用两个名字把数据完全展开"
+id="toc-贯穿例子只用两个名字把数据完全展开">4.
+贯穿例子：只用两个名字，把数据完全展开</a></li>
+<li><a href="#为什么次数除以行总数就是训练结果"
+id="toc-为什么次数除以行总数就是训练结果">5.
+为什么“次数除以行总数”就是训练结果</a></li>
+<li><a href="#概率表怎样写成张量dim-和-keepdim-的目的"
+id="toc-概率表怎样写成张量dim-和-keepdim-的目的">6.
+概率表怎样写成张量：<code>dim</code> 和 <code>keepdim</code>
+的目的</a></li>
+<li><a href="#nll-的背景推导和数值意义"
+id="toc-nll-的背景推导和数值意义">7. NLL 的背景、推导和数值意义</a></li>
+<li><a href="#平滑怎样处理没见过" id="toc-平滑怎样处理没见过">8.
+平滑：怎样处理“没见过”</a></li>
+<li><a href="#按概率生成训练评分和采样各做什么"
+id="toc-按概率生成训练评分和采样各做什么">9.
+按概率生成：训练、评分和采样各做什么</a></li>
+<li><a href="#为什么再写一个神经-bigram把表变成可训练参数"
+id="toc-为什么再写一个神经-bigram把表变成可训练参数">10.
+为什么再写一个神经 bigram：把表变成可训练参数</a></li>
+<li><a href="#softmax怎样把任意分数变成概率"
+id="toc-softmax怎样把任意分数变成概率">11.
+Softmax：怎样把任意分数变成概率</a></li>
+<li><a href="#交叉熵为什么等于这里的-nll"
+id="toc-交叉熵为什么等于这里的-nll">12. 交叉熵为什么等于这里的
+NLL</a></li>
+<li><a href="#梯度推导模型到底怎样把错误改回来"
+id="toc-梯度推导模型到底怎样把错误改回来">13.
+梯度推导：模型到底怎样把错误改回来</a></li>
+<li><a href="#计数模型与神经模型究竟是什么关系"
+id="toc-计数模型与神经模型究竟是什么关系">14.
+计数模型与神经模型究竟是什么关系</a></li>
+<li><a href="#评估与排错如何知道真的学会了"
+id="toc-评估与排错如何知道真的学会了">15.
+评估与排错：如何知道真的学会了</a></li>
+<li><a href="#自测与-lab-衔接" id="toc-自测与-lab-衔接">16. 自测与 Lab
+衔接</a></li>
+<li><a href="#可运行的核对实验" id="toc-可运行的核对实验">17.
+可运行的核对实验</a></li>
+<li><a href="#appendix-mle" id="toc-appendix-mle">附录 A.
+任意计数下最大似然估计的完整推导</a></li>
+<li><a href="#外部课程怎么配合使用" id="toc-外部课程怎么配合使用">18.
+外部课程怎么配合使用</a></li>
+</ul>
+</nav>
+<h1 id="阅读起点">阅读起点</h1>
+<p>你已经学过 micrograd，知道怎样把一个 loss
+反向传播到参数。但进入语言模型时，新的困难是：<strong>文字怎么变成训练数据？模型输出什么？我们为什么要优化这个
+loss？</strong> 本讲义从这些问题开始。</p>
+<p>学完以后，你应当能拿着两个字符串，在纸上构造一个模型，计算它给字符串的概率，再解释神经网络如何学到同一种东西。第一次阅读不需要先学完概率论，也不需要先看完整的
+makemore 答案。</p>
+<p>本文参考了 Karpathy 的 <a
+href="https://karpathy.ai/zero-to-hero.html">makemore
+课程介绍</a>、Jurafsky 与 Martin 的 <a
+href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">N-gram Language
+Models 教材</a>，以及《动手学深度学习》的 <a
+href="https://zh.d2l.ai/chapter_linear-networks/softmax-regression.html">softmax
+回归</a>。正文用本 Lab
+的小数据集重新组织讲解，手算例子和推导在这里完整展开。它是一份自学讲义，不是课程逐字翻译。</p>
+<p><strong>建议分三次读，每次都留下一个能独立完成的结果。</strong></p>
+<ul>
+<li>第一遍读第 1–9 节：在纸上算出计数表、概率表、一个名字的概率和
+NLL，然后按概率生成名字。</li>
+<li>第二遍读第 10–14 节：解释
+one-hot、softmax、交叉熵，以及一次梯度更新究竟改了什么。</li>
+<li>第三遍读第 15–17 节：做自测、运行核对实验，再完成 Lab。附录 A
+的一般最大似然证明可以放在第二遍之后。</li>
+</ul>
+<p>遇到公式时，先把符号换成本讲义的
+<code>.、a、b</code>。如果仍说不出公式在解决什么问题，回到该节开头；不要靠记住符号继续往下读。</p>
+<hr />
+<h1 id="为什么要让模型预测下一个字符">1.
+为什么要让模型预测下一个字符</h1>
+<h2 id="我们想做一个怎样的程序">1.1 我们想做一个怎样的程序</h2>
+<p>假设手里有一份名字列表，希望程序生成一些具有相似拼写习惯的新名字。</p>
+<p>一种办法是从列表随机取一个名字。它可以复现训练样本，却没有学会如何组合字符。另一种办法是每次均匀随机选字母，拼写通常没有训练数据中的规律。</p>
+<p>我们希望程序介于两者之间：保留从数据里学到的局部规律，又允许重新组合。</p>
+<p>生成可以一步一步进行：</p>
+<ol type="1">
+<li>根据开头的规律，选第一个字符。</li>
+<li>根据已经生成的内容，选下一个字符。</li>
+<li>重复，直到决定结束。</li>
+</ol>
+<p>于是，“生成名字”变成了一个会反复调用的小任务：<strong>给定已有内容，为每一种可能的下一个字符分配概率。</strong></p>
+<p>例如，模型看到 <code>a</code> 后，可能给出：</p>
+<pre class="text"><code>下一个是 . ：0.2    （结束）
+下一个是 a ：0.3
+下一个是 b ：0.5</code></pre>
+<p>这三个数非负，而且加起来等于
+1。这叫一个<strong>分类概率分布</strong>，也叫 categorical
+distribution。这里的数字只是示意，稍后会从真实计数算出来。</p>
+<h2 id="为什么输出一组概率而不只输出一个答案">1.2
+为什么输出一组概率，而不只输出一个答案</h2>
+<p>相同的前缀可以有多种合理续写。只记“最可能是
+<code>b</code>”，会丢掉其他可能性和不确定程度。</p>
+<p>有了整组概率，我们可以完成不同任务：</p>
+<ul>
+<li><strong>生成</strong>：按照这组概率抽一个字符，而不是永远选概率最大的字符。</li>
+<li><strong>评分</strong>：判断模型给真实出现的字符分配了多少概率。</li>
+<li><strong>训练</strong>：如果真实字符的概率太低，就调整模型。</li>
+</ul>
+<p>后面出现的计数、softmax、NLL，都是在服务这些需求。</p>
+<h2 id="这里的-token-到底是什么">1.3 这里的 token 到底是什么</h2>
+<p>token 是模型处理的离散单位。本 Lab 中，一个字母就是一个
+token，另加一个表示边界的特殊 token <code>.</code>。</p>
+<p>“bigram”中的 <strong>bi 表示相邻的两个
+token</strong>。一个用于输入，一个作为预测目标。因此 bigram
+是“用前一个预测下一个”，而不是“输入前两个预测第三个”；后者叫
+trigram。</p>
+<p>教材经常用单词作为 token，本 Lab
+用字符。概率建模方法可以沿用，但两种模型能利用的信息不同。</p>
+<p><strong>停一下：</strong>预测下一个字符时，为什么不能只记录
+argmax，也就是概率最大的字符？试着分别从生成和训练的角度回答。</p>
+<hr />
+<h1 id="概率补课整段文字与下一步预测怎样连起来">2.
+概率补课：整段文字与下一步预测怎样连起来</h1>
+<p>这一节解决一个根本问题：我们关心完整字符串，为什么只训练“预测下一个”就有意义？</p>
+<h2 id="条件概率表示缩小观察范围">2.1 条件概率表示缩小观察范围</h2>
+<p>记号</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+P(b\mid a)
+</annotation></semantics></math></p>
+<p>读作：“在当前字符已经是 <code>a</code> 的条件下，下一个字符是
+<code>b</code> 的概率。”竖线右边是已知条件，左边是要预测的事件。</p>
+<p>假设有 100 次转移，其中 20 次以 <code>a</code> 为当前字符，这 20
+次里有 5 次下一个是 <code>b</code>。那么经验比例是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>5</mn><mn>20</mn></mfrac><mo>=</mo><mn>0.25</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\widehat P(b\mid a)=\frac{5}{20}=0.25.
+</annotation></semantics></math></p>
+<p>分母是 20，不是 100。因为问题已经把范围限制在“当前字符是
+<code>a</code>”的情况。上面的帽子表示这是根据数据做出的估计，未必等于未来数据的真实概率。</p>
+<h2 id="概率的乘法规则来自哪里">2.2 概率的乘法规则来自哪里</h2>
+<p>对两个事件
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>,</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">A,B</annotation></semantics></math>，当
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P(A)&gt;0</annotation></semantics></math>
+时，条件概率定义为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(B\mid A)=\frac{P(A,B)}{P(A)}.
+</annotation></semantics></math></p>
+<p>这里
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(A,B)</annotation></semantics></math>
+表示两个事件一起发生的概率。把分母乘到左边：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(A,B)=P(A)P(B\mid A).
+</annotation></semantics></math></p>
+<p>再加入第三个事件
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>∣</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>∣</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+P(A,B,C)
+&amp;=P(A,B)P(C\mid A,B)\\
+&amp;=P(A)P(B\mid A)P(C\mid A,B).
+\end{aligned}
+</annotation></semantics></math></p>
+<p>每一步都只是再次使用条件概率定义。推广到任意长度，这就是<strong>概率链式法则</strong>。</p>
+<p>这里没有假设各个字符独立。事实上，条件里保留了前面发生的事情。它也不是
+micrograd 中用于求导的链式法则；两个名字相似，处理的问题不同。</p>
+<h2 id="用一个字符串展开">2.3 用一个字符串展开</h2>
+<p>先临时用 <code>BOS</code> 表示开始，<code>EOS</code>
+表示结束。一个名字 <code>ab</code> 的完整生成事件是：从开始状态生成
+<code>a</code>，再生成 <code>b</code>，然后结束。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo>∣</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>⋅</mi><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo>,</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>⋅</mi><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo>∣</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">S</mi></mrow><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+P(a,b,\mathrm{EOS}\mid\mathrm{BOS})
+={}&amp;P(a\mid\mathrm{BOS})\\
+&amp;\cdot P(b\mid\mathrm{BOS},a)\\
+&amp;\cdot P(\mathrm{EOS}\mid\mathrm{BOS},a,b).
+\end{aligned}
+</annotation></semantics></math></p>
+<p><strong>因此，只要能计算每一步在真实前缀下的条件概率，就能把它们相乘，得到完整字符串的概率。</strong>
+这就是下一步预测与整段文字建模的连接。</p>
+<p>最前面的 <code>BOS</code> 是给定的起点，不需要额外乘一个“出现 BOS
+的概率”。最后的 <code>EOS</code> 是模型要预测的事件，需要计入。</p>
+<hr />
+<h1 id="bigram-的假设为了能估计先少看一点历史">3. Bigram
+的假设：为了能估计，先少看一点历史</h1>
+<h2 id="完整前缀为什么难处理">3.1 完整前缀为什么难处理</h2>
+<p>如果每一种完整前缀都单独建一张统计表，前缀越长，可能的组合越多。训练数据中常常只出现一次，甚至从来没有出现。</p>
+<p>例如，要估计“在 <code>alexandr</code>
+后面接什么”，可以利用的样本很少；要估计“在 <code>r</code>
+后面接什么”，可利用的样本多得多，但会混入其他前缀的情况。</p>
+<p>bigram 选择后者：把历史压缩成最后一个 token。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mi>t</mi></msub><mo>∣</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>c</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mi>t</mi></msub><mo>∣</mo><msub><mi>c</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(c_t\mid c_1,\ldots,c_{t-1})
+\approx P(c_t\mid c_{t-1}).
+</annotation></semantics></math></p>
+<p>这里
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>t</mi></msub><annotation encoding="application/x-tex">c_t</annotation></semantics></math>
+是第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+个字符。近似号表达的是<strong>建模选择</strong>，不是从概率链式法则推出的定理。这种只依赖当前状态预测下一步的设定称为一阶
+Markov 假设。</p>
+<p>代价很明确：前缀 <code>ba</code> 和 <code>aa</code> 最后都是
+<code>a</code>，bigram
+就必须为它们给出相同的下一字符分布。数据再多、训练再久，也无法让这个模型区分它们。</p>
+<p>这是教材介绍 n-gram
+的切入点：先解释完整历史的稀疏问题，再引出缩短条件的近似。参见 <a
+href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">Jurafsky 与
+Martin，第 3.1 节</a>。</p>
+<h2 id="为什么要加入开始与结束">3.2 为什么要加入开始与结束</h2>
+<p>本 Lab 用同一个符号 <code>.</code> 表示边界：</p>
+<pre class="text"><code>名字 ab： . a b .
+转移事件：(. → a), (a → b), (b → .)</code></pre>
+<p><code>.</code> 作为输入时，表示从起点选择第一个字符；<code>.</code>
+作为输出时，表示结束当前名字。</p>
+<p>如果没有开始事件，模型无法从这份数据学到首字符分布。如果没有结束事件，模型无法学到何时停止，只能由程序在外部强行截断。</p>
+<p>把开始和结束合用一个
+token，是这个小实验的编码约定。它可行的原因是：生成时一旦抽到
+<code>.</code>
+就停止，不会再把这个结束事件送回去续写同一个名字。其他实现可以使用不同的
+<code>BOS</code> 和
+<code>EOS</code>，但词表与可允许转移也要一起调整。</p>
+<p>长度为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
+的名字会产生
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">L+1</annotation></semantics></math>
+个转移：一条开始边、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">L-1</annotation></semantics></math>
+条内部边、一条结束边。例如 <code>ab</code> 长度为 2，产生 3
+个训练样本。</p>
+<h2 id="现在写出-bigram-的完整名字概率">3.3 现在写出 bigram
+的完整名字概率</h2>
+<p>用
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>0</mn></msub><mo>=</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">c_0=.</annotation></semantics></math>
+表示起点，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">c_{L+1}=.</annotation></semantics></math>
+表示终点。模型参数统称为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>，可以是一张概率表，也可以是后面要学的权重矩阵。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mn>1</mn></msub><mi>…</mi><msub><mi>c</mi><mi>L</mi></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> 并结束</mtext></mrow><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></munderover><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mi>t</mi></msub><mo>∣</mo><msub><mi>c</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P_\theta(c_1\ldots c_L\text{ 并结束})
+=\prod_{t=1}^{L+1}P_\theta(c_t\mid c_{t-1}).
+</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∏</mo><annotation encoding="application/x-tex">\prod</annotation></semantics></math>
+是连乘符号。例如对 <code>ab</code>，这个式子就是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊𝚋</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mi>.</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>P</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>.</mi><mo>∣</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P_\theta(\texttt{ab})
+=P_\theta(a\mid .)P_\theta(b\mid a)P_\theta(.\mid b).
+</annotation></semantics></math></p>
+<p>这里对<strong>已经选定的 bigram
+模型</strong>写等号，因为这就是模型的定义。把它当作现实中完整语言分布的替代时，才是在做近似。</p>
+<hr />
+<h1 id="贯穿例子只用两个名字把数据完全展开">4.
+贯穿例子：只用两个名字，把数据完全展开</h1>
+<p>后面除特别说明外，都使用：</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> [<span class="st">&quot;ab&quot;</span>, <span class="st">&quot;aa&quot;</span>]</span></code></pre></div>
+<p>它足够小，可以在纸上核对每一项，也与本 Lab 的公开检查一致。</p>
+<h2 id="字符先变成编号">4.1 字符先变成编号</h2>
+<p>固定顺序为 <code>.、a、b</code>：</p>
+<pre class="text"><code>stoi = {&quot;.&quot;: 0, &quot;a&quot;: 1, &quot;b&quot;: 2}
+itos = {0: &quot;.&quot;, 1: &quot;a&quot;, 2: &quot;b&quot;}
+V = 3</code></pre>
+<p><code>stoi</code> 是 string to integer，<code>itos</code>
+是反向查询，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+是词表大小。</p>
+<p>编号只是查表地址。<code>b=2</code> 不表示 <code>b</code> 比
+<code>a=1</code>
+大一倍，也不表示字符间距离。把这些整数直接当连续数值特征会人为引入顺序含义；后面的
+one-hot 正是为了明确它们是类别。</p>
+<h2 id="每个样本都是当前字符真实下一个字符">4.2
+每个样本都是“当前字符、真实下一个字符”</h2>
+<pre class="text"><code>ab：(. → a), (a → b), (b → .)
+aa：(. → a), (a → a), (a → .)</code></pre>
+<p>展开成编号数组：</p>
+<pre class="text"><code>inputs  = [0, 1, 2, 0, 1, 1]
+targets = [1, 2, 0, 1, 1, 0]</code></pre>
+<p>第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+个样本记作
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>m</mi></msub><mo>,</mo><msub><mi>y</mi><mi>m</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x_m,y_m)</annotation></semantics></math>，分别对应
+<code>inputs[m]</code> 和 <code>targets[m]</code>。一共有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">M=6</annotation></semantics></math>
+个样本。</p>
+<p>目标标签直接来自文本中真实的下一个字符，不需要人工再给每个样本标注答案。这是下一
+token 预测提供监督信号的方式。</p>
+<p>每个名字分别添加边界、分别拆样本。不要把 <code>ab</code> 和
+<code>aa</code> 直接拼成 <code>abaa</code>，否则会捏造一个跨名字的
+<code>b → a</code>，还丢掉真实边界。</p>
+<h2 id="把相同的转移合并计数">4.3 把相同的转移合并计数</h2>
+<p>定义
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">C_{ij}</annotation></semantics></math>：当前
+token 编号是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>、下一个
+token 编号是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+的出现次数。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+是一个
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>×</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">V\times V</annotation></semantics></math>
+矩阵。</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>当前字符  下一个字符</th>
+<th style="text-align: right;"><code>.</code>（0）</th>
+<th style="text-align: right;"><code>a</code>（1）</th>
+<th style="text-align: right;"><code>b</code>（2）</th>
+<th style="text-align: right;">这一行的总次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.</code>（0）</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>a</code>（1）</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>b</code>（2）</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>比如
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">C_{0,1}=2</annotation></semantics></math>，因为两个名字都由
+<code>. → a</code>
+开始。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mn>1</mn><mo>,</mo><mn>0</mn></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">C_{1,0}=1</annotation></semantics></math>，因为只有
+<code>aa</code> 以 <code>a</code> 结束。</p>
+<p>把第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+行的总数记作：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>V</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+n_i=\sum_{j=0}^{V-1}C_{ij}.
+</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∑</mo><annotation encoding="application/x-tex">\sum</annotation></semantics></math>
+是求和符号，含义是把这行每一列加起来。本例
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>0</mn></msub><mo>=</mo><mn>2</mn><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo>=</mo><mn>3</mn><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n_0=2,n_1=3,n_2=1</annotation></semantics></math>，全表总数是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">M=6</annotation></semantics></math>。</p>
+<p><strong>停一下：</strong>不看上面的表，重建 <code>a</code>
+这一行，并解释为什么只有两个名字，<code>a</code>
+作为当前字符却有三次。</p>
+<hr />
+<h1 id="为什么次数除以行总数就是训练结果">5.
+为什么“次数除以行总数”就是训练结果</h1>
+<p>我们需要把整数计数变成下一字符的概率。先从直觉入手，再说明它对应哪个优化目标。</p>
+<h2 id="在同一条件内计算比例">5.1 在同一条件内计算比例</h2>
+<p>当前字符为 <code>a</code> 的三次观测中，后面分别是
+<code>b、a、.</code>。如果暂时完全相信这三次观测，每种结果都应分得
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">1/3</annotation></semantics></math>。</p>
+<p>一般地，当
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i&gt;0</annotation></semantics></math>
+时：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo>∣</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mi>i</mi></msub></mfrac><mo>=</mo><mfrac><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>V</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>C</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P_{ij}=P(j\mid i)=\frac{C_{ij}}{n_i}
+=\frac{C_{ij}}{\sum_{k=0}^{V-1}C_{ik}}.
+</annotation></semantics></math></p>
+<p>分母里的
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+是一个遍历所有列的临时索引。分子固定目标列
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>，分母计算当前行所有可能去向的总数。</p>
+<p>每行自然加起来等于 1：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><msub><mi>n</mi><mi>i</mi></msub></mfrac><mo>=</mo><mfrac><msub><mi>n</mi><mi>i</mi></msub><msub><mi>n</mi><mi>i</mi></msub></mfrac><mo>=</mo><mn>1</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\sum_j P_{ij}=\frac{\sum_j C_{ij}}{n_i}=\frac{n_i}{n_i}=1.
+</annotation></semantics></math></p>
+<p>本例得到：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">E</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P_{\mathrm{MLE}}=
+\begin{pmatrix}
+0&amp;1&amp;0\\
+1/3&amp;1/3&amp;1/3\\
+1&amp;0&amp;0
+\end{pmatrix}.
+</annotation></semantics></math></p>
+<p>行、列顺序始终都是
+<code>.、a、b</code>。特别注意：<strong>整张表的和是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">V=3</annotation></semantics></math>，不是
+1</strong>，因为它包含三个不同条件下的概率分布。</p>
+<h2 id="什么叫似然">5.2 什么叫似然</h2>
+<p>概率与似然可以用同一个计算式，区别在于我们把什么当作变量。</p>
+<ul>
+<li>已经给定模型，问“它产生这些数据的概率是多少”，是在给数据算概率。</li>
+<li>数据已经固定，比较“哪组参数让这些观测更容易发生”，是在比较参数的似然。</li>
+</ul>
+<p>设一行的候选概率是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>.</mi></msub><mo>,</mo><msub><mi>p</mi><mi>a</mi></msub><mo>,</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(p_.,p_a,p_b)</annotation></semantics></math>。对当前字符为
+<code>a</code> 的三个观测，候选行分配的似然是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">ℒ</mi><mi>a</mi></msub><mo>=</mo><msub><mi>p</mi><mi>b</mi></msub><mspace width="0.167em"></mspace><msub><mi>p</mi><mi>a</mi></msub><mspace width="0.167em"></mspace><msub><mi>p</mi><mi>.</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathcal L_a=p_b\,p_a\,p_{.}.
+</annotation></semantics></math></p>
+<p>因为观测中每种后继各出现一次。两组候选分布的对比是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mn>3</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>3</mn></msup><mo>≈</mo><mn>0.037037</mn><mo>,</mo><mspace width="2.0em"></mspace><mn>0.8</mn><mo>×</mo><mn>0.1</mn><mo>×</mo><mn>0.1</mn><mo>=</mo><mn>0.008</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+(1/3)^3\approx0.037037,
+\qquad
+0.8\times0.1\times0.1=0.008.
+</annotation></semantics></math></p>
+<p>第二组虽然特别偏爱某一个字符，却让另外两个真实观测太难发生。因此它给整组观测的似然更低。</p>
+<p>“最大似然估计”（maximum likelihood
+estimation，MLE）就是在所有合法概率分布中，找让固定训练数据的似然最大的一组参数。它没有承诺未来也最好；泛化要另行验证。</p>
+<h2 id="在-a-这一行亲手求一次最优解">5.3 在 <code>a</code>
+这一行亲手求一次最优解</h2>
+<p>由于概率和必须为 1，只需设
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>a</mi></msub><mo>=</mo><mi>u</mi><mo>,</mo><msub><mi>p</mi><mi>b</mi></msub><mo>=</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">p_a=u,p_b=v</annotation></semantics></math>，剩下
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>.</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">p_.=1-u-v</annotation></semantics></math>。要求
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mi>v</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mi>u</mi><mo>+</mo><mi>v</mi><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">u&gt;0,v&gt;0,u+v&lt;1</annotation></semantics></math>。</p>
+<p>目标是最大化：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">ℒ</mi><mi>a</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>u</mi><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathcal L_a(u,v)=uv(1-u-v).
+</annotation></semantics></math></p>
+<p>先取自然对数。对数严格递增，所以最大值的位置不变；乘积会变成容易求导的和：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>u</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>v</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+f(u,v)=\log u+\log v+\log(1-u-v).
+</annotation></semantics></math></p>
+<p>分别对
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>,</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">u,v</annotation></semantics></math>
+求偏导，令它们为零：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>f</mi></mrow><mrow><mi>∂</mi><mi>u</mi></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>u</mi></mfrac><mo>−</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi></mrow></mfrac><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mfrac><mrow><mi>∂</mi><mi>f</mi></mrow><mrow><mi>∂</mi><mi>v</mi></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>v</mi></mfrac><mo>−</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi></mrow></mfrac><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial f}{\partial u}=\frac1u-\frac1{1-u-v}=0,
+\qquad
+\frac{\partial f}{\partial v}=\frac1v-\frac1{1-u-v}=0.
+</annotation></semantics></math></p>
+<p>第一式给出
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">u=1-u-v</annotation></semantics></math>，第二式给出
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mn>1</mn><mo>−</mo><mi>u</mi><mo>−</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">v=1-u-v</annotation></semantics></math>。三种概率相同，又必须和为
+1，于是每种都是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">1/3</annotation></semantics></math>。</p>
+<p>这确实是最大值：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">log</mi><annotation encoding="application/x-tex">\log</annotation></semantics></math>
+在正数上是凹函数，这个目标也是凹函数；边界上任意一种观测概率变成零，似然就变成零。</p>
+<p>对开始行而言，观测只有两个 <code>a</code>，似然是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>p</mi><mi>a</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">p_a^2</annotation></semantics></math>，最大值在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>a</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">p_a=1</annotation></semantics></math>。对
+<code>b</code> 行，观测只有一个结束事件，最大值在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>.</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">p_.=1</annotation></semantics></math>。这样就得到上面的整张概率表。</p>
+<p>对任意计数都成立的一般证明放在<a href="#appendix-mle">附录
+A</a>。第一次读到这里，先掌握结论的来历：<strong>频率归一化不只是“让行和为
+1”的小技巧，它正好解出了这个模型的训练优化问题。</strong></p>
+<p><strong>停一下：</strong>如果某一行完全没有数据，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i=0</annotation></semantics></math>，最大似然能够唯一决定这一行吗？先保留这个问题，到第
+8 节处理。</p>
+<hr />
+<h1 id="概率表怎样写成张量dim-和-keepdim-的目的">6.
+概率表怎样写成张量：<code>dim</code> 和 <code>keepdim</code> 的目的</h1>
+<p>这一节把已经明确的数学运算翻译成
+PyTorch。代码应该服从“每行单独归一化”的含义。</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> torch.tensor([</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>],</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>],</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>],</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>], dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>row_totals <span class="op">=</span> C.<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> C <span class="op">/</span> row_totals</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(row_totals)  <span class="co"># [[2.], [3.], [1.]]，shape 为 (3, 1)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(P)</span></code></pre></div>
+<p>对 <code>(行, 列)</code> 这个二维矩阵，<code>dim=1</code>
+指定沿列方向求和，留下每一行的总数。<code>keepdim=True</code>
+保留被求和的维度，让结果仍然是二维列向量 <code>(V, 1)</code>。</p>
+<p>广播除法等价于：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>/</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn><mi>/</mi><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn><mi>/</mi><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn><mi>/</mi><mn>2</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn><mi>/</mi><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn><mi>/</mi><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\begin{pmatrix}0&amp;2&amp;0\\1&amp;1&amp;1\\1&amp;0&amp;0\end{pmatrix}
+\mathbin{/}
+\begin{pmatrix}2\\3\\1\end{pmatrix}
+=
+\begin{pmatrix}0/2&amp;2/2&amp;0/2\\1/3&amp;1/3&amp;1/3\\1/1&amp;0/1&amp;0/1\end{pmatrix}.
+</annotation></semantics></math></p>
+<p>广播会把每一行的那个分母用于该行的所有列。</p>
+<p>如果写 <code>C / C.sum(1)</code>，分母的 shape 是
+<code>(3,)</code>。PyTorch 从最右侧维度对齐，它会按列使用
+<code>[2, 3, 1]</code>，得到诸如第二行 <code>[1/2, 1/3, 1]</code>
+的错误结果。由于矩阵恰好是方阵，代码可能正常执行，却没有做你想要的数学运算。</p>
+<p>广播的维度对齐规则可查 <a
+href="https://docs.pytorch.org/docs/stable/notes/broadcasting.html">PyTorch
+官方说明</a>。</p>
+<p>另一个常见错误是除以
+<code>C.sum()</code>。它估计的是从所有转移里随机取一个时，某个二元组合占多少比例，不是固定当前字符后的条件概率。</p>
+<p><strong>检查重点：</strong>不要只看 shape 或“代码没报错”，要看
+<code>P.sum(dim=1)</code> 是否每项都是 1，再抽一行手算。</p>
+<hr />
+<h1 id="nll-的背景推导和数值意义">7. NLL 的背景、推导和数值意义</h1>
+<p>现在已经有一个模型，接下来需要回答：怎样用一个数评价它？为什么训练里经常出现
+<code>-log</code>？</p>
+<h2 id="从模型给真实数据的概率开始">7.1 从模型给真实数据的概率开始</h2>
+<p>用第 5 节的未平滑概率表：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊𝚋</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>×</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>×</mo><mn>1</mn><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+P(\texttt{ab})=1\times\frac13\times1=\frac13,
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊𝚊</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>×</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>×</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>9</mn></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(\texttt{aa})=1\times\frac13\times\frac13=\frac19.
+</annotation></semantics></math></p>
+<p>如果把两个名字看作模型的两次独立生成，训练数据的似然为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">ℒ</mi><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊𝚋</mtext><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊𝚊</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>×</mo><mfrac><mn>1</mn><mn>9</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>27</mn></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathcal L=P(\texttt{ab})P(\texttt{aa})
+=\frac13\times\frac19=\frac1{27}.
+</annotation></semantics></math></p>
+<p>这里是对独立名字的概率相乘。单个名字内部各步可以通过条件概率相乘，不需要假设相邻字符彼此独立。</p>
+<h2 id="为什么取-log">7.2 为什么取 log</h2>
+<p>一连串小于 1 的数相乘，会越来越小。比如
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>0.1</mn><mn>1000</mn></msup><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>1000</mn></mrow></msup></mrow><annotation encoding="application/x-tex">0.1^{1000}=10^{-1000}</annotation></semantics></math>，超出了常用浮点格式可表示的非零范围。</p>
+<p>自然对数把乘积变成和：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi mathvariant="script">ℒ</mi><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munderover><mo>∏</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><msub><mi>P</mi><mrow><msub><mi>x</mi><mi>m</mi></msub><mo>,</mo><msub><mi>y</mi><mi>m</mi></msub></mrow></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><msub><mi>x</mi><mi>m</mi></msub><mo>,</mo><msub><mi>y</mi><mi>m</mi></msub></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\log\mathcal L
+=\log\prod_{m=1}^{M}P_{x_m,y_m}
+=\sum_{m=1}^{M}\log P_{x_m,y_m}.
+</annotation></semantics></math></p>
+<p><code>log</code> 在本文都是自然对数，即以
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
+为底，PyTorch 的 <code>torch.log</code>
+也如此。因为它严格递增，最大化似然和最大化 log-likelihood
+是同一个优化目标。</p>
+<p>如果对数运算生疏，先记住并理解：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>1</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\log 1=0</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>a</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">\log(ab)=\log a+\log b</annotation></semantics></math>，且
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mi>p</mi><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0&lt;p&lt;1</annotation></semantics></math>
+时
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\log p&lt;0</annotation></semantics></math>。</p>
+<h2 id="为什么加负号为什么再平均">7.3 为什么加负号，为什么再平均</h2>
+<p>训练代码通常采用“最小化 loss”的约定，所以把要最大化的 log-likelihood
+取负号。</p>
+<p>再除以预测事件总数
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>，得到<strong>平均负对数似然</strong>（average
+negative log-likelihood）：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><msub><mi>L</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mi>M</mi></mfrac><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><msub><mi>x</mi><mi>m</mi></msub><mo>,</mo><msub><mi>y</mi><mi>m</mi></msub></mrow></msub></mrow></menclose><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boxed{L_{\mathrm{NLL}}=-\frac1M\sum_{m=1}^{M}\log P_{x_m,y_m}}.
+</annotation></semantics></math></p>
+<p>三个操作各有目的：</p>
+<ol type="1">
+<li>乘概率：评价模型给真实观测的联合解释。</li>
+<li>取对数和负号：得到便于计算、便于最小化的目标。</li>
+<li>除以
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>：报告每次预测平均付出的损失，方便在一致的统计口径下比较。</li>
+</ol>
+<p>本例共有 6 次预测，包括开始和结束事件，因此：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mn>6</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mn>1</mn><mn>27</mn></mfrac><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>27</mn></mrow><mn>6</mn></mfrac><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn></mrow><mn>2</mn></mfrac><mo>≈</mo><mn>0.549306</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+L_{\mathrm{NLL}}
+=-\frac16\log\frac1{27}
+=\frac{\log27}{6}
+=\frac{\log3}{2}
+\approx0.549306.
+</annotation></semantics></math></p>
+<p>这里不是除以名字数 2，也不是除以正文字符总数
+4。若不同名字长度不同，“先平均每个名字的平均
+NLL，再平均所有名字”，也会改变长短名字的权重；本 Lab
+采用所有转移等权。</p>
+<h2 id="单个--log-p-在惩罚什么">7.4 单个 <code>-log p</code>
+在惩罚什么</h2>
+<p>这里只看模型给<strong>真实下一个字符</strong>的概率
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">真实字符的概率
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math></th>
+<th style="text-align: right;">单次损失
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">-\log p</annotation></semantics></math></th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>模型完全押中这个观测</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.693147</td>
+<td>给真实结果一半概率</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">2.302585</td>
+<td>对真实结果分配得很少</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">4.605170</td>
+<td>对真实结果极不看好</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td
+style="text-align: right;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>∞</mi></mrow><annotation encoding="application/x-tex">+\infty</annotation></semantics></math></td>
+<td>模型认为实际发生的事不可能发生</td>
+</tr>
+</tbody>
+</table>
+<p>模型越不看好真实结果，受到的惩罚越大。给真实结果的概率越高，损失越低。</p>
+<p>这与准确率不同。两个模型都把 <code>b</code> 排第一，但一个给真实
+<code>b</code> 的概率为 0.6，另一个为 0.99，准确率无法区分，NLL
+可以。</p>
+<h2 id="为什么均匀分布的-nll-是-logv">7.5 为什么均匀分布的 NLL 是
+<code>log(V)</code></h2>
+<p>如果每种候选 token 都分到
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">1/V</annotation></semantics></math>，那么每个真实观测的损失都一样：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mi>V</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>V</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+-\log(1/V)=\log V.
+</annotation></semantics></math></p>
+<p>把
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+个相同值平均，仍然是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">\log V</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mfrac><mn>1</mn><mi>M</mi></mfrac><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mi>V</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mi>M</mi></mfrac><mspace width="0.167em"></mspace><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>V</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>V</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+-\frac1M\sum_{m=1}^M\log(1/V)
+=-\frac1M\,M(-\log V)=\log V.
+</annotation></semantics></math></p>
+<p>本例
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">V=3</annotation></semantics></math>，基线为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn><mo>≈</mo><mn>1.098612</mn></mrow><annotation encoding="application/x-tex">\log3\approx1.098612</annotation></semantics></math>。只有词表确实为
+26 个字母加边界、共 27 个 token 时，基线才是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>27</mn><mo>≈</mo><mn>3.295837</mn></mrow><annotation encoding="application/x-tex">\log27\approx3.295837</annotation></semantics></math>。</p>
+<p><strong>均匀基线不是最小可能损失，也不是所有随机初始化的精确损失。</strong>
+它代表完全均匀的预测。随机且不均匀的 logits 可以给出更高或更低的样本平均
+NLL，要看实际预测和数据。</p>
+<h2 id="可选perplexity-是怎样来的">7.6 可选：perplexity 是怎样来的</h2>
+<p>把平均 NLL 取指数，得到困惑度：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">L</mi></mrow><mo>=</mo><msup><mi>e</mi><msub><mi>L</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∏</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mfrac><mn>1</mn><msub><mi>P</mi><mrow><msub><mi>x</mi><mi>m</mi></msub><mo>,</mo><msub><mi>y</mi><mi>m</mi></msub></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mi>/</mi><mi>M</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathrm{PPL}=e^{L_{\mathrm{NLL}}}
+=\left(\prod_{m=1}^{M}\frac1{P_{x_m,y_m}}\right)^{1/M}.
+</annotation></semantics></math></p>
+<p>所以它是“真实观测概率的倒数”的几何平均。若每一步都在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+个候选中均匀分配，PPL 恰好等于
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>，因此常被理解为等效的选择不确定程度。</p>
+<p>本例计数模型的 PPL 是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn><mi>/</mi><mn>2</mn></mrow></msup><mo>=</mo><msqrt><mn>3</mn></msqrt><mo>≈</mo><mn>1.732051</mn></mrow><annotation encoding="application/x-tex">e^{\log3/2}=\sqrt3\approx1.732051</annotation></semantics></math>。它可以不是整数，也不代表模型每一步真的只保留这么多个候选。</p>
+<p>比较 NLL 或 PPL 时，必须统一测试数据、token
+粒度、边界计数和对数口径。字符级与子词级的数字不能直接判断谁更强。</p>
+<hr />
+<h1 id="平滑怎样处理没见过">8. 平滑：怎样处理“没见过”</h1>
+<h2 id="没见过不等于绝不可能">8.1 没见过不等于绝不可能</h2>
+<p>训练数据中没有 <code>b → a</code>，未平滑模型就令
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P(a\mid b)=0</annotation></semantics></math>。</p>
+<p>假如评估一个新名字 <code>ba</code>，就会遇到：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚋𝚊</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mi>.</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>.</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(\texttt{ba})=P(b\mid .)P(a\mid b)P(.\mid a)=0.
+</annotation></semantics></math></p>
+<p>本例前两项都为零；即使只出现一项零，乘积也会归零，NLL
+变成无穷大。</p>
+<p>这揭示了 MLE
+的局限：它只优化已看到的样本。一个小数据集可能没有覆盖未来会遇到的转移。</p>
+<h2 id="add-alpha-的分子和分母都从计数出发">8.2 Add-alpha
+的分子和分母都从计数出发</h2>
+<p>一个简单办法是在每个格子上加上相同的
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha&gt;0</annotation></semantics></math>，把它当作人为补上的少量计数，再归一化。这些补上的量称为伪计数。</p>
+<p>一行有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+个格子，总共补了
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>α</mi></mrow><annotation encoding="application/x-tex">V\alpha</annotation></semantics></math>，因此：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><msubsup><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mrow><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>+</mo><mi>α</mi></mrow><mrow><munder><mo>∑</mo><mi>k</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>+</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>+</mo><mi>α</mi></mrow><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><mi>V</mi><mi>α</mi></mrow></mfrac></mrow></menclose><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boxed{P^{(\alpha)}_{ij}
+=\frac{C_{ij}+\alpha}{\sum_k(C_{ik}+\alpha)}
+=\frac{C_{ij}+\alpha}{n_i+V\alpha}}.
+</annotation></semantics></math></p>
+<p>只给分子加数、分母不改，会破坏概率和为 1
+的约束。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha=1</annotation></semantics></math>
+叫 add-one 或 Laplace
+smoothing；<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+不必是整数。</p>
+<p>对本例取
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha=1</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>+</mo><mn>1</mn><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msup><mi>P</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn><mi>/</mi><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>5</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>3</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>4</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+C+1=
+\begin{pmatrix}1&amp;3&amp;1\\2&amp;2&amp;2\\2&amp;1&amp;1\end{pmatrix},
+\qquad
+P^{(1)}=
+\begin{pmatrix}1/5&amp;3/5&amp;1/5\\1/3&amp;1/3&amp;1/3\\1/2&amp;1/4&amp;1/4\end{pmatrix}.
+</annotation></semantics></math></p>
+<p>现在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">P(a\mid b)=1/4</annotation></semantics></math>，新名字
+<code>ba</code> 的概率是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚋𝚊</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><mo>⋅</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>⋅</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>60</mn></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+P^{(1)}(\texttt{ba})=\frac15\cdot\frac14\cdot\frac13=\frac1{60},
+</annotation></semantics></math></p>
+<p>它的每转移平均 NLL 为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>60</mn><mi>/</mi><mn>3</mn><mo>≈</mo><mn>1.364782</mn></mrow><annotation encoding="application/x-tex">\log60/3\approx1.364782</annotation></semantics></math>，是有限值。</p>
+<p>教材将 add-one
+作为入门方法，并提醒它可能把过多概率分给未见事件；<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+应根据验证效果选择。参见 <a
+href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">第 3.6.1–3.6.2
+节</a>。</p>
+<h2 id="趋向均匀不是口号可以直接拆出来">8.3
+“趋向均匀”不是口号，可以直接拆出来</h2>
+<p>对有观测的行
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i&gt;0</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>+</mo><mi>α</mi></mrow><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><mi>V</mi><mi>α</mi></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><msub><mi>n</mi><mi>i</mi></msub><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><mi>V</mi><mi>α</mi></mrow></mfrac><mfrac><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mi>i</mi></msub></mfrac><mo>+</mo><mfrac><mrow><mi>V</mi><mi>α</mi></mrow><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><mi>V</mi><mi>α</mi></mrow></mfrac><mfrac><mn>1</mn><mi>V</mi></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>λ</mi><mi>i</mi></msub><msubsup><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">E</mi></mrow></msubsup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>λ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mfrac><mn>1</mn><mi>V</mi></mfrac><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\frac{C_{ij}+\alpha}{n_i+V\alpha}
+&amp;=\frac{n_i}{n_i+V\alpha}\frac{C_{ij}}{n_i}
+ +\frac{V\alpha}{n_i+V\alpha}\frac1V\\
+&amp;=\lambda_i P^{\mathrm{MLE}}_{ij}+(1-\lambda_i)\frac1V,
+\end{aligned}
+</annotation></semantics></math></p>
+<p>其中：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>i</mi></msub><mo>=</mo><mfrac><msub><mi>n</mi><mi>i</mi></msub><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>+</mo><mi>V</mi><mi>α</mi></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\lambda_i=\frac{n_i}{n_i+V\alpha}.
+</annotation></semantics></math></p>
+<p>所以平滑后的分布，是“这一行的经验分布”与“均匀分布”的加权平均。</p>
+<ul>
+<li>这一行数据很多，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>i</mi></msub><annotation encoding="application/x-tex">n_i</annotation></semantics></math>
+大，经验分布的权重大。</li>
+<li>同一行增加
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>，均匀分布的权重增大。</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">\alpha\to\infty</annotation></semantics></math>
+时，每个格子趋近
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">1/V</annotation></semantics></math>。</li>
+</ul>
+<p>真正决定平滑强弱的是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>α</mi></mrow><annotation encoding="application/x-tex">V\alpha</annotation></semantics></math>
+相对于该行真实样本数
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>i</mi></msub><annotation encoding="application/x-tex">n_i</annotation></semantics></math>
+的大小，不是孤立地看
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha=1</annotation></semantics></math>
+算不算大。</p>
+<p>如果整行没有观测，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i=0</annotation></semantics></math>，未平滑的
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>/</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">0/0</annotation></semantics></math>
+没有定义。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha&gt;0</annotation></semantics></math>
+时，原始平滑公式直接给出
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mi>/</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">\alpha/(V\alpha)=1/V</annotation></semantics></math>。上面的混合拆分含
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>/</mi><msub><mi>n</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">C_{ij}/n_i</annotation></semantics></math>，不能直接代入这条空行。</p>
+<h2 id="平滑为什么可能使训练-nll-变差">8.4 平滑为什么可能使训练 NLL
+变差</h2>
+<p>未平滑 MLE 已经最小化了同一训练集、同一模型族的
+NLL。把概率改向均匀，训练 NLL
+因而不会优于原先的最优值，部分行原本就均匀时可以不变。</p>
+<p>本例的实际数字是：</p>
+<table>
+<thead>
+<tr>
+<th
+style="text-align: right;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></th>
+<th style="text-align: right;">训练集 <code>ab, aa</code> 的平均
+NLL</th>
+<th style="text-align: right;">留出示例 <code>ba</code> 的平均 NLL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.549306</td>
+<td
+style="text-align: right;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>∞</mi></mrow><annotation encoding="application/x-tex">+\infty</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.607472</td>
+<td style="text-align: right;">2.266352</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.835106</td>
+<td style="text-align: right;">1.364782</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.048931</td>
+<td style="text-align: right;">1.131055</td>
+</tr>
+</tbody>
+</table>
+<p>这些数由本讲义第 17 节的代码计算，只展示这个极小例子的行为。一个
+<code>ba</code> 不足以选择真实任务中的最佳
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>；其他验证集也不保证
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+越大越好。</p>
+<p>平滑是在表达“不要仅凭有限观测就完全排除其他情况”。它解决<strong>词表内未见转移</strong>，不负责自动处理词表外的新字符；后者还需要预先定义的词表或未知字符策略。</p>
+<hr />
+<h1 id="按概率生成训练评分和采样各做什么">9.
+按概率生成：训练、评分和采样各做什么</h1>
+<h2 id="采样相当于使用一枚会换规则的骰子">9.1
+采样相当于使用一枚会换规则的骰子</h2>
+<p>从当前字符 <code>i</code> 出发，取概率表第 <code>i</code>
+行。把这一行看作一枚有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+个面的骰子，按照对应概率抽下一字符。</p>
+<pre class="text"><code>当前设为 .
+读取 P[当前]，抽一个下一个 token
+如果抽到 .，这个名字结束
+否则记下这个字符，把它变成新的当前字符
+继续</code></pre>
+<p>例如使用未平滑表，可能走出：</p>
+<pre class="text"><code>. → a → a → b → .</code></pre>
+<p>这条路径生成 <code>aab</code>，概率为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>×</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>×</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>×</mo><mn>1</mn><mo>=</mo><mfrac><mn>1</mn><mn>9</mn></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+1\times\frac13\times\frac13\times1=\frac19.
+</annotation></semantics></math></p>
+<p>训练集中没有
+<code>aab</code>，但它的局部转移都被模型允许。生成新组合的能力由此而来。它不说明模型已经理解名字的语义。</p>
+<p>这种“把自己刚生成的结果用作下一步输入”的过程叫自回归生成。</p>
+<h2 id="为什么不是每次-argmax">9.2 为什么不是每次 argmax</h2>
+<p>每次取最大概率的 token
+叫贪心选择。在固定模型、固定起点和固定平局规则下，它总会给出同一条路径，还可能陷入循环。</p>
+<p>采样保留分布里的其他可能性。PyTorch 可以用
+<code>torch.multinomial(row, num_samples=1, generator=g)</code>
+抽一个索引；这个名字中的 multinomial 不意味着一次必须生成多个字符。</p>
+<p>固定随机种子，是为了在同一环境和相同调用顺序下方便复现实验；它不把采样变成
+argmax，也不承诺跨版本、跨设备逐项一致。</p>
+<h2 id="为什么还要有最大长度">9.3 为什么还要有最大长度</h2>
+<p>代码通常限制最多生成多少字符，避免异常概率表或很长的随机路径让循环一直运行。达到长度上限表示程序截断，不能当作模型自然生成了结束
+token。</p>
+<p>本 Lab 使用相同边界 token，加平滑后 <code>. → .</code>
+也得到正概率，因此可能生成空字符串。这是概率表允许的结果。若产品要求名字非空，可以禁止起始时立即结束并重新归一化，但那是在改变生成规则，评分时也要说明相应约定。</p>
+<p>对于有限词表，若每个状态都有严格正的结束概率，最终结束的概率为
+1；这仍不保证一次采样不会很长。任意一张“每行和为
+1”的表则不自动保证能结束，比如永远 <code>a → a</code> 的表。</p>
+<h2 id="训练不需要先采样名字">9.4 训练不需要先采样名字</h2>
+<p>训练和评分时，用的是文本里真实的当前字符和真实下一个字符。对于
+<code>ab</code>，我们直接评分 <code>. → a、a → b、b → .</code>。</p>
+<p>采样时，输入来自模型刚才自己的选择。标准的这个训练目标不需要对随机抽样操作求导；梯度来自模型给真实目标的概率。</p>
+<p><strong>第一阶段完成标准：</strong>现在应能从 <code>ab, aa</code>
+重建两张表，解释
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.549306</mn><annotation encoding="application/x-tex">0.549306</annotation></semantics></math>
+是怎样算出来的，并模拟一次生成。能做到这些，再进入神经版本。</p>
+<hr />
+<h1 id="为什么再写一个神经-bigram把表变成可训练参数">10.
+为什么再写一个神经 bigram：把表变成可训练参数</h1>
+<p>计数模型已经有解析解，为什么还要用梯度下降做一遍？</p>
+<p>因为后面要把“给定输入，算出下一字符分布”的内部结构换成能共享特征的神经网络。先在一个已知正确答案的任务上练习张量、loss
+和反向传播，可以看清训练过程中每一步的含义。Karpathy 的 <a
+href="https://karpathy.ai/zero-to-hero.html">makemore
+第一课说明</a>把张量运算、训练、采样和损失评估列为核心内容。</p>
+<h2 id="one-hot-是类别选择开关">10.1 One-hot 是类别选择开关</h2>
+<p>对 <code>.、a、b</code> 三个类别，one-hot 向量分别是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mi>.</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>e</mi><mi>a</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>e</mi><mi>b</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+e_.=(1,0,0),\quad e_a=(0,1,0),\quad e_b=(0,0,1).
+</annotation></semantics></math></p>
+<p>只有当前类别所在位置为 1，其他位置为
+0。这种编码保留类别身份，不额外假定字符编号的大小关系。</p>
+<p>引入一个可训练矩阵：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>00</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>01</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>02</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>10</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>11</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>12</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>20</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>21</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>w</mi><mn>22</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+W=\begin{pmatrix}
+w_{00}&amp;w_{01}&amp;w_{02}\\
+w_{10}&amp;w_{11}&amp;w_{12}\\
+w_{20}&amp;w_{21}&amp;w_{22}
+\end{pmatrix}.
+</annotation></semantics></math></p>
+<p>与计数表一样，行表示当前字符，列表示候选下一个字符。但这里每个格子是任意实数分数，不是次数，也还不是概率。</p>
+<h2 id="为什么-one_hot-w-等于选一行">10.2 为什么
+<code>one_hot @ W</code> 等于选一行</h2>
+<p>假设当前字符是 <code>a</code>，计算：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mi>a</mi></msub><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mn>10</mn></msub><mo>,</mo><msub><mi>w</mi><mn>11</mn></msub><mo>,</mo><msub><mi>w</mi><mn>12</mn></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+e_aW=(0,1,0)W=(w_{10},w_{11},w_{12}).
+</annotation></semantics></math></p>
+<p>展开第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+个输出更容易看清：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>V</mi><mo>−</mo><mn>1</mn></mrow></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>e</mi><mi>a</mi></msub><msub><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msub><msub><mi>W</mi><mrow><mi>k</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>0</mn><msub><mi>W</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><mn>1</mn><msub><mi>W</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo>+</mo><mn>0</mn><msub><mi>W</mi><mrow><mn>2</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>W</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+z_j=\sum_{k=0}^{V-1}(e_a)_kW_{kj}
+=0W_{0j}+1W_{1j}+0W_{2j}=W_{1j}.
+</annotation></semantics></math></p>
+<p>因此 one-hot 的乘法实际在选中 <code>a</code> 这一行。这一组输出分数
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+叫 <strong>logits</strong>。</p>
+<h2 id="一次处理多个样本时的-shape">10.3 一次处理多个样本时的 shape</h2>
+<p>令
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+表示一个 batch 的样本数。把
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+个 one-hot 行堆起来，得到
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>B</mi><mo>×</mo><mi>V</mi></mrow></msup><mo>,</mo><mspace width="1.0em"></mspace><mi>W</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>V</mi><mo>×</mo><mi>V</mi></mrow></msup><mo>,</mo><mspace width="1.0em"></mspace><mi>Z</mi><mo>=</mo><mi>X</mi><mi>W</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>B</mi><mo>×</mo><mi>V</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+X\in\mathbb R^{B\times V},\quad
+W\in\mathbb R^{V\times V},\quad
+Z=XW\in\mathbb R^{B\times V}.
+</annotation></semantics></math></p>
+<p><code>Z</code>
+的每一行是一个样本的预测分数，每一列是一个候选下一字符。</p>
+<p>实现时可以直接用整数输入查行：</p>
+<pre class="text"><code>inputs 的 shape：(B,)
+weights 的 shape：(V, V)
+logits = weights[inputs] 的 shape：(B, V)
+targets 的 shape：(B,)</code></pre>
+<p><code>weights[inputs]</code> 与 one-hot
+乘法数学上等价，并保留梯度，不需要额外构造大部分为零的输入矩阵。一次
+batch 可以重复选中同一行，对这一行的梯度会累加。</p>
+<hr />
+<h1 id="softmax怎样把任意分数变成概率">11.
+Softmax：怎样把任意分数变成概率</h1>
+<h2 id="参数直接当概率会遇到约束问题">11.1
+参数直接当概率，会遇到约束问题</h2>
+<p>梯度下降会让
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+的元素自由变化，可能出现负数，也不会自动让一行之和等于 1。</p>
+<p>我们需要一个变换，让任意实数 logits
+都得到合法概率，同时便于求导。</p>
+<p>第一步，用指数函数把每个分数变成正数：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>j</mi></msub><mo>=</mo><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><mo>&gt;</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+s_j=e^{z_j}&gt;0.
+</annotation></semantics></math></p>
+<p>第二步，除以所有正数的总和：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>V</mi><mo>−</mo><mn>1</mn></mrow></munderover><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mrow></mfrac></mrow></menclose><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boxed{p_j=\frac{e^{z_j}}{\sum_{k=0}^{V-1}e^{z_k}}}.
+</annotation></semantics></math></p>
+<p>这就是 softmax。它保证每项为正、和为
+1，同时保留分数大小顺序。讲解中有时把
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><annotation encoding="application/x-tex">e^{z_j}</annotation></semantics></math>
+类比成“可学习的计数”；它们实际上是未归一化正权重，不是真实出现次数。</p>
+<p>正值化再归一化并不能唯一推出指数函数。选择指数还带来下面两个很方便的性质，以及第
+13 节简洁的梯度。这是一种适合本模型的参数化选择。</p>
+<h2 id="手算一组-logits">11.2 手算一组 logits</h2>
+<p>为了看见非均匀分布，临时设选中的一行为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z=(0,1,2)</annotation></semantics></math>，列仍为
+<code>.、a、b</code>。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>z</mi></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>e</mi><mo>,</mo><msup><mi>e</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>2.718282</mn><mo>,</mo><mn>7.389056</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+e^z=(1,e,e^2)\approx(1,2.718282,7.389056),
+</annotation></semantics></math></p>
+<p>总和约为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>11.107338</mn><annotation encoding="application/x-tex">11.107338</annotation></semantics></math>，所以：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>≈</mo><mo stretchy="false" form="prefix">(</mo><mn>0.090031</mn><mo>,</mo><mn>0.244728</mn><mo>,</mo><mn>0.665241</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p\approx(0.090031,0.244728,0.665241).
+</annotation></semantics></math></p>
+<p>分数为 2 不表示概率为 2；它只是经变换后更偏向 <code>b</code>。</p>
+<h2 id="真正影响概率的是分数差">11.3 真正影响概率的是分数差</h2>
+<p>任取两个类别
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">j,k</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msub><mi>p</mi><mi>j</mi></msub><msub><mi>p</mi><mi>k</mi></msub></mfrac><mo>=</mo><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mfrac><mo>=</mo><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>−</mo><msub><mi>z</mi><mi>k</mi></msub></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{p_j}{p_k}=\frac{e^{z_j}}{e^{z_k}}=e^{z_j-z_k}.
+</annotation></semantics></math></p>
+<p>对这条式子取 log，得到
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>j</mi></msub><mi>/</mi><msub><mi>p</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>z</mi><mi>j</mi></msub><mo>−</mo><msub><mi>z</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\log(p_j/p_k)=z_j-z_k</annotation></semantics></math>。分数差控制概率比；两个类别的
+logit 差为 1，它们的概率比就是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>。</p>
+<p>如果给整行加同一个常数
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>+</mo><mi>c</mi></mrow></msup><mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>k</mi></msub><mo>+</mo><mi>c</mi></mrow></msup></mrow></mfrac><mo>=</mo><mfrac><mrow><msup><mi>e</mi><mi>c</mi></msup><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup></mrow><mrow><msup><mi>e</mi><mi>c</mi></msup><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mrow></mfrac><mo>=</mo><msub><mi>p</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{e^{z_j+c}}{\sum_k e^{z_k+c}}
+=\frac{e^c e^{z_j}}{e^c\sum_k e^{z_k}}
+=p_j.
+</annotation></semantics></math></p>
+<p>因此 <code>(0,1,2)</code> 与 <code>(100,101,102)</code> 的 softmax
+相同。这个性质也解释了为何权重矩阵的数值未必唯一。</p>
+<h2 id="数值稳定形式从这个性质推出来">11.4
+数值稳定形式从这个性质推出来</h2>
+<p>直接算很大的
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><annotation encoding="application/x-tex">e^{z_j}</annotation></semantics></math>
+可能溢出。既然整行加减同一个数不改变结果，就取
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><msub><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>k</mi></msub><msub><mi>z</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">m=\max_k z_k</annotation></semantics></math>，先减最大值：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>−</mo><mi>m</mi></mrow></msup><mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>k</mi></msub><mo>−</mo><mi>m</mi></mrow></msup></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p_j=\frac{e^{z_j-m}}{\sum_k e^{z_k-m}}.
+</annotation></semantics></math></p>
+<p>现在每个指数的输入都不大于 0，至少一个为 0，避免了指数向上溢出。</p>
+<p>计算训练损失时还可以直接在 log 空间处理：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><msub><mi>z</mi><mi>j</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+\log p_j=z_j-\log\sum_k e^{z_k},
+</annotation></semantics></math></p>
+<p>其中稳定的 log-sum-exp 为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup><mo>=</mo><mi>m</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>k</mi></msub><mo>−</mo><mi>m</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\log\sum_k e^{z_k}
+=m+\log\sum_k e^{z_k-m}.
+</annotation></semantics></math></p>
+<p>这样不必先计算极小概率、再对可能已下溢成零的数取 log。训练代码使用
+<code>log_softmax</code> 或 <code>cross_entropy</code>
+来完成这些运算。</p>
+<p>《动手学深度学习》从分类输出约束引出
+softmax，再进入似然和训练目标，适合补读 <a
+href="https://zh.d2l.ai/chapter_linear-networks/softmax-regression.html">softmax
+回归</a>。</p>
+<hr />
+<h1 id="交叉熵为什么等于这里的-nll">12. 交叉熵为什么等于这里的 NLL</h1>
+<p>现在有了神经网络输出的概率，还缺训练目标。最自然的做法是继续使用第 7
+节：看模型给真实下一个字符的概率。</p>
+<h2 id="把真实类别也写成分布">12.1 把真实类别也写成分布</h2>
+<p>假设一个样本真实下一个字符是 <code>a</code>。用
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+表示该样本的目标分布：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+q=(0,1,0).
+</annotation></semantics></math></p>
+<p>这是“这一次实际观察到了 <code>a</code>”的编码，不是在声称现实中
+<code>a</code> 后面只能接某一种字符。</p>
+<p>模型预测记为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>.</mi></msub><mo>,</mo><msub><mi>p</mi><mi>a</mi></msub><mo>,</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p=(p_.,p_a,p_b)</annotation></semantics></math>。交叉熵定义为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>V</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>q</mi><mi>j</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+H(q,p)=-\sum_{j=0}^{V-1}q_j\log p_j.
+</annotation></semantics></math></p>
+<p>代入 one-hot 目标：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>.</mi></msub><mo>+</mo><mn>1</mn><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>a</mi></msub><mo>+</mo><mn>0</mn><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>a</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+H(q,p)=-(0\log p_.+1\log p_a+0\log p_b)
+=-\log p_a.
+</annotation></semantics></math></p>
+<p>因此在本 Lab 的<strong>单个正确类别、无类别加权、无 label
+smoothing</strong>设置下，每个样本的交叉熵就是它的 NLL。再对 batch
+取平均，就是平均 NLL。</p>
+<h2 id="三种名字对应同一个计算">12.2 三种名字对应同一个计算</h2>
+<p>对真实类别编号为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+的样本：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>y</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>y</mi></msub></msup><mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mi>z</mi><mi>y</mi></msub><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\ell(z,y)
+&amp;=-\log p_y\\
+&amp;=-\log\frac{e^{z_y}}{\sum_k e^{z_k}}\\
+&amp;=-z_y+\log\sum_k e^{z_k}.
+\end{aligned}
+</annotation></semantics></math></p>
+<p>第一行强调“真实观测的负对数概率”，第二行代入
+softmax，第三行是更方便计算和求导的形式。</p>
+<p>对 logits <code>(0,1,2)</code>，若真实类别是 <code>a</code>（编号
+1）：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℓ</mi><mo>=</mo><mi>−</mi><mn>1</mn><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>e</mi><mo>+</mo><msup><mi>e</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>1.407606</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\ell=-1+\log(1+e+e^2)\approx1.407606.
+</annotation></semantics></math></p>
+<p>虽然 <code>b</code> 的 logit 最大，但这次真实出现的是
+<code>a</code>，loss 要取 <code>a</code> 的概率，而不是最大概率。</p>
+<h2 id="pytorch-调用怎样对应到公式">12.3 PyTorch 调用怎样对应到公式</h2>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> torch.tensor([[<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>]], dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>targets <span class="op">=</span> torch.tensor([<span class="dv">1</span>], dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>log_probs <span class="op">=</span> F.log_softmax(logits, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>manual <span class="op">=</span> <span class="op">-</span>log_probs[torch.arange(<span class="bu">len</span>(targets)), targets].mean()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>builtin <span class="op">=</span> F.cross_entropy(logits, targets)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(manual.item(), builtin.item())  <span class="co"># 都约为 1.407606</span></span></code></pre></div>
+<p><code>log_probs[行编号, targets]</code>
+为每个样本取出真实目标那一列，再取负平均。<code>torch.arange(B)</code>
+产生 <code>0,1,...,B-1</code>，与每行的目标列配对。</p>
+<p><code>F.cross_entropy</code> 的输入应是原始 logits。先做 softmax
+再把概率传给它，会把那些概率误当新
+logits，计算另一个目标。目标是类别编号时，用 shape <code>(B,)</code>
+的整型张量；不必自己构造目标 one-hot。</p>
+<p>接口依据 <a
+href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html">PyTorch
+cross_entropy 文档</a>，并用本仓库环境中 PyTorch 2.13.0
+的函数说明及实际计算核对。</p>
+<hr />
+<h1 id="梯度推导模型到底怎样把错误改回来">13.
+梯度推导：模型到底怎样把错误改回来</h1>
+<p>这一节是连接 micrograd 与语言建模的关键。我们要从 loss
+本身推出梯度方向，而不是记一句“反向传播会提高正确类别概率”。</p>
+<h2 id="从已经展开的单样本损失求导">13.1 从已经展开的单样本损失求导</h2>
+<p>上一节得到：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℓ</mi><mo>=</mo><mi>−</mi><msub><mi>z</mi><mi>y</mi></msub><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\ell=-z_y+\log\sum_k e^{z_k}.
+</annotation></semantics></math></p>
+<p>求它对任意一个 logit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>j</mi></msub><annotation encoding="application/x-tex">z_j</annotation></semantics></math>
+的导数。</p>
+<p>第一项中，只有当
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">j=y</annotation></semantics></math>
+时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>y</mi></msub><annotation encoding="application/x-tex">z_y</annotation></semantics></math>
+才会随
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>j</mi></msub><annotation encoding="application/x-tex">z_j</annotation></semantics></math>
+变化。因此：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><msub><mi>z</mi><mi>y</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>∂</mi><msub><mi>z</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><mi>−</mi><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>=</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial(-z_y)}{\partial z_j}=-\mathbf1[j=y].
+</annotation></semantics></math></p>
+<p>符号
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>=</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\mathbf1[j=y]</annotation></semantics></math>
+叫指示函数：条件成立时为 1，否则为 0。</p>
+<p>对第二项，先设
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><msub><mo>∑</mo><mi>k</mi></msub><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mrow><annotation encoding="application/x-tex">S=\sum_k e^{z_k}</annotation></semantics></math>。使用求导的链式法则：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>S</mi></mrow><mrow><mi>∂</mi><msub><mi>z</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>S</mi></mfrac><mfrac><mrow><mi>∂</mi><mi>S</mi></mrow><mrow><mi>∂</mi><msub><mi>z</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup><mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup></mrow></mfrac><mo>=</mo><msub><mi>p</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial\log S}{\partial z_j}
+=\frac1S\frac{\partial S}{\partial z_j}
+=\frac{e^{z_j}}{\sum_k e^{z_k}}
+=p_j.
+</annotation></semantics></math></p>
+<p>两项相加：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><mfrac><mrow><mi>∂</mi><mi>ℓ</mi></mrow><mrow><mi>∂</mi><msub><mi>z</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><msub><mi>p</mi><mi>j</mi></msub><mo>−</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo>=</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow></menclose><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boxed{\frac{\partial\ell}{\partial z_j}=p_j-\mathbf1[j=y]}.
+</annotation></semantics></math></p>
+<p>写成向量就是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>z</mi></msub><mi>ℓ</mi><mo>=</mo><mi>p</mi><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">\nabla_z\ell=p-q</annotation></semantics></math>，也就是“预测分布减去这个样本的目标分布”。</p>
+<h2 id="代入数字检查更新方向">13.2 代入数字，检查更新方向</h2>
+<p>继续用 logits <code>(0,1,2)</code>，真实类别为 <code>a</code>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>≈</mo><mo stretchy="false" form="prefix">(</mo><mn>0.090031</mn><mo>,</mo><mn>0.244728</mn><mo>,</mo><mn>0.665241</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>q</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+p\approx(0.090031,0.244728,0.665241),\quad q=(0,1,0),
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>z</mi></msub><mi>ℓ</mi><mo>≈</mo><mo stretchy="false" form="prefix">(</mo><mn>0.090031</mn><mo>,</mo><mi>−</mi><mn>0.755272</mn><mo>,</mo><mn>0.665241</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\nabla_z\ell\approx(0.090031,-0.755272,0.665241).
+</annotation></semantics></math></p>
+<p>梯度下降采用：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mi>j</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><msub><mi>z</mi><mi>j</mi></msub><mo>−</mo><mi>η</mi><mfrac><mrow><mi>∂</mi><mi>ℓ</mi></mrow><mrow><mi>∂</mi><msub><mi>z</mi><mi>j</mi></msub></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+z_j^{\mathrm{new}}=z_j-\eta\frac{\partial\ell}{\partial z_j},
+</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\eta&gt;0</annotation></semantics></math>
+是学习率。对这个单样本、直接优化 logits 的例子：</p>
+<ul>
+<li>真实类别 <code>a</code> 的梯度为负，减去负数使它的 logit 上升。</li>
+<li>其他类别的梯度为正，更新使它们的 logit 下降。</li>
+</ul>
+<p>再做一个一致性检查：所有分量的梯度和为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_jp_j-1=0</annotation></semantics></math>。这与“整体平移
+logits 不改变概率”相符。</p>
+<p>在整个 batch
+中，同一行面对不同真实后继时，更新会相互平衡；不能把某一个样本的方向当作所有数据合并后的最终方向。</p>
+<h2 id="梯度怎样传到权重表">13.3 梯度怎样传到权重表</h2>
+<p>一个输入编号为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+的样本使用
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">z_j=W_{ij}</annotation></semantics></math>，因此它的数据损失只直接影响第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+行。</p>
+<p>若一个 batch 里有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+个样本，且损失取平均：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>B</mi></mfrac><munder><mo>∑</mo><mrow><mi>m</mi><mo>:</mo><msub><mi>x</mi><mi>m</mi></msub><mo>=</mo><mi>i</mi></mrow></munder><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>p</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>−</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">[</mo><msub><mi>y</mi><mi>m</mi></msub><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial L}{\partial W_{ij}}
+=\frac1B\sum_{m:x_m=i}
+\left(p_j^{(m)}-\mathbf1[y_m=j]\right).
+</annotation></semantics></math></p>
+<p>求和只遍历输入为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+的样本。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>p</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">p_j^{(m)}</annotation></semantics></math>
+是第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+个样本给类别
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+的预测概率。</p>
+<p>所以：重复输入的梯度要相加，再按 batch
+大小平均。未被选中的行没有来自这个 batch
+的数据损失梯度。若加了覆盖全表的正则项，其他行仍可能收到正则梯度。</p>
+<h2 id="在完整六个样本上手算一次更新">13.4
+在完整六个样本上手算一次更新</h2>
+<p>初始化
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">W=0</annotation></semantics></math>，则每行
+softmax 都是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mn>3</mn><mo>,</mo><mn>1</mn><mi>/</mi><mn>3</mn><mo>,</mo><mn>1</mn><mi>/</mi><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1/3,1/3,1/3)</annotation></semantics></math>，初始平均
+NLL 是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn></mrow><annotation encoding="application/x-tex">\log3</annotation></semantics></math>。</p>
+<p>对完整训练集，同一行预测相同，于是上面的求和可以收集为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>n</mi><mi>i</mi></msub><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><mi>M</mi></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial L}{\partial W_{ij}}
+=\frac{n_iP_{ij}-C_{ij}}{M}.
+</annotation></semantics></math></p>
+<p>本例
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">M=6</annotation></semantics></math>，代入计数表：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>W</mi></msub><mi>L</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>9</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mn>2</mn><mi>/</mi><mn>9</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>9</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>−</mi><mn>1</mn><mi>/</mi><mn>9</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>18</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mi>/</mi><mn>18</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\nabla_W L=
+\begin{pmatrix}
+1/9&amp;-2/9&amp;1/9\\
+0&amp;0&amp;0\\
+-1/9&amp;1/18&amp;1/18
+\end{pmatrix}.
+</annotation></semantics></math></p>
+<p><code>a</code>
+行梯度全是零，因为这一行每种后继各出现一次，均匀预测已经符合经验分布。梯度为零在这里是正确结果，不是
+autograd 坏了。</p>
+<p>取学习率
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\eta=1</annotation></semantics></math>
+更新一次后，平均 NLL 从
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.098612</mn><annotation encoding="application/x-tex">1.098612</annotation></semantics></math>
+降为约
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.010797</mn><annotation encoding="application/x-tex">1.010797</annotation></semantics></math>。第
+17 节会用自动微分核对这个结果。</p>
+<h2 id="训练循环中的每一行有什么目的">13.5
+训练循环中的每一行有什么目的</h2>
+<p>下面是步骤说明，完整可运行的小实验在第 17 节：</p>
+<pre class="text"><code>初始化可求导的叶子参数 W
+重复若干次：
+    清空 W 的旧梯度
+    logits = W[inputs]
+    loss = cross_entropy(logits, targets)
+    loss.backward()
+    在 no_grad 中执行 W -= learning_rate * W.grad</code></pre>
+<p>清空梯度是因为 PyTorch
+默认累加梯度；本练习要用当前这一步的梯度。<code>no_grad</code>
+让参数更新不成为下一轮需要反向传播的计算图一部分。</p>
+<p><code>loss.item()</code> 适合记录日志，返回普通数值；用它替代 loss
+再反向传播会断开计算图。初始化时也要留意叶子张量，例如先生成和缩放随机数，最后再调用
+<code>requires_grad_()</code>。</p>
+<p>在这个没有隐藏层的查表模型中，零初始化可以正常学习，上面已经算出非零梯度。不要把“多层网络隐藏单元需要打破对称性”的经验不加区分地套到这里。</p>
+<hr />
+<h1 id="计数模型与神经模型究竟是什么关系">14.
+计数模型与神经模型究竟是什么关系</h1>
+<h2 id="它们在估计相同的条件分布">14.1 它们在估计相同的条件分布</h2>
+<p>计数版直接保存
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo>∣</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(j\mid i)</annotation></semantics></math>；神经版保存
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">W_{ij}</annotation></semantics></math>，通过每行
+softmax 得到
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo>∣</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(j\mid i)</annotation></semantics></math>。</p>
+<p>如果一张目标概率表所有元素都严格大于零，可以令：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+W_{ij}=\log P_{ij}.
+</annotation></semantics></math></p>
+<p>那么：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">softmax</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mi>i</mi></msub><msub><mo stretchy="false" form="postfix">)</mo><mi>j</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow></msup><mrow><munder><mo>∑</mo><mi>k</mi></munder><msup><mi>e</mi><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow></msup></mrow></mfrac><mo>=</mo><mfrac><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><munder><mo>∑</mo><mi>k</mi></munder><msub><mi>P</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow></mfrac><mo>=</mo><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\operatorname{softmax}(W_i)_j
+=\frac{e^{\log P_{ij}}}{\sum_k e^{\log P_{ik}}}
+=\frac{P_{ij}}{\sum_kP_{ik}}
+=P_{ij}.
+</annotation></semantics></math></p>
+<p>因此神经参数化可以精确表示任意严格正的条件概率表。每行再加任意常数，也表示相同的分布。</p>
+<p>若目标表里有零概率，有限 logits 的 softmax
+无法精确输出零。要用对应分数相对于其他分数趋向负无穷来逼近。所以对于有零计数的行，神经模型可以不断接近未平滑
+MLE 的概率和 loss，但未必存在一组有限权重精确达到边界最优解。</p>
+<h2 id="从梯度为零也能看见计数结果">14.2 从梯度为零也能看见计数结果</h2>
+<p>第 13 节对完整训练集推得：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>n</mi><mi>i</mi></msub><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><mi>M</mi></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial L}{\partial W_{ij}}
+=\frac{n_iP_{ij}-C_{ij}}M.
+</annotation></semantics></math></p>
+<p>对于
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i&gt;0</annotation></semantics></math>
+的行，若能够达到驻点，令梯度为零：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mspace width="1.0em"></mspace><mo>⇒</mo><mspace width="1.0em"></mspace><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mi>i</mi></msub></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+n_iP_{ij}=C_{ij}
+\quad\Longrightarrow\quad
+P_{ij}=\frac{C_{ij}}{n_i}.
+</annotation></semantics></math></p>
+<p>这与第 5
+节的频率归一化完全一致。对于零计数需要按上一小节的极限情况理解，不能凭这个方程保证有限参数处一定有驻点。</p>
+<p>现在“两个模型在学同一个分布”就有了具体含义：它们的未正则化训练目标，对已观察到的输入行，指向同一个经验条件分布。</p>
+<h2 id="为什么训练结果不一定完全相等">14.3
+为什么训练结果不一定完全相等</h2>
+<p>有限训练步数、学习率、数值误差，以及正则化都会影响神经模型最终结果。</p>
+<p>本 Lab 的可选正则项为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow></msub><mo>=</mo><msub><mi>L</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>+</mo><mi>λ</mi><mrow><mi mathvariant="normal">mean</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>L</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>+</mo><mfrac><mi>λ</mi><msup><mi>V</mi><mn>2</mn></msup></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msubsup><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+L_{\mathrm{total}}
+=L_{\mathrm{NLL}}+\lambda\operatorname{mean}(W^2)
+=L_{\mathrm{NLL}}+\frac{\lambda}{V^2}\sum_{i,j}W_{ij}^2.
+</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda\ge0</annotation></semantics></math>
+控制惩罚强度。它额外产生
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>λ</mi><msub><mi>W</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>/</mi><msup><mi>V</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">2\lambda W_{ij}/V^2</annotation></semantics></math>
+的梯度，抑制过大的权重绝对值。强正则倾向于让 logits 接近零，此时 softmax
+接近均匀。</p>
+<p>但 <strong>L2 权重正则、add-alpha 伪计数、交叉熵接口中的 label
+smoothing 是不同操作</strong>。它们可能都让预测没那么极端，不能据此说
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">\lambda=0.01</annotation></semantics></math>
+等价于某个确定的
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>。要比较正则强度，需实际评估。</p>
+<p>比较模型时，分别报告纯 NLL 与加入正则的训练
+objective。不能把含正则项的 total loss 直接拿去和计数版 NLL 比。</p>
+<h2 id="下一课真正要增加什么">14.4 下一课真正要增加什么</h2>
+<p>当前两个模型都只看前一个字符，并且每一行单独学习，没有通过共享隐藏特征联系不同输入字符。</p>
+<p>若希望区分 <code>ba</code> 和
+<code>aa</code>，必须让模型看到更多上下文。直接把所有更长上下文建表会迅速增加表的规模；后续
+embedding 和 MLP 会让不同上下文利用共享的参数与特征。</p>
+<p>所以这里学习神经 bigram
+的价值，是理解可微训练接口，并为扩展模型做准备。相同输入信息与相同自由概率表，并不会因为换成梯度下降而自动得到更强的语言理解能力。</p>
+<hr />
+<h1 id="评估与排错如何知道真的学会了">15.
+评估与排错：如何知道真的学会了</h1>
+<h2 id="训练-nll-回答的不是泛化问题">15.1 训练 NLL
+回答的不是泛化问题</h2>
+<p>训练 NLL 衡量模型是否拟合已见数据。验证集（dev/validation
+set）衡量在未参与参数拟合的数据上表现如何；测试集留到模型与超参数确定之后再做最终评估。</p>
+<p>在实际名字数据上，应当先按完整名字划分，再从各部分分别构造转移。若先展开转移再随机拆分，同一个名字的内容可能同时进入训练和验证，难以评价对新名字的泛化。</p>
+<p>如果目标是评估从未见过的名字拼写，完全相同的重复名字也应按组分到同一侧；否则你评估的是包含重复名字的同分布数据，结论要对应这个目标。</p>
+<p>先固定词表及未知字符策略，再仅用训练数据计数或更新权重。验证集用于选择
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>、正则强度和训练轮次，不往训练计数里补数；测试集不反复用来调参。</p>
+<h2 id="对当前仓库的具体提醒">15.2 对当前仓库的具体提醒</h2>
+<p>本 Lab 的 <code>run_lab01.py</code> 在同一份 <code>words</code>
+上拟合并评分。它适合检查训练闭环，<strong>没有实现训练/验证/测试划分</strong>，所以输出的
+<code>nll</code> 应视为训练 NLL。</p>
+<p>它当前会输出
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0.1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">\alpha=0.1,1,10</annotation></semantics></math>
+的结果，没有直接输出
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha=0</annotation></semantics></math>；如果要完成
+README
+中的未平滑比较，需要在自己的实验记录中补这一项。遇到空行要先决定处理策略，不要默默把
+NaN 当结果。</p>
+<p>这份仓库目前包含
+<code>names_small.txt</code>；默认数据加载器在存在完整
+<code>names.txt</code>
+时优先使用完整数据，否则使用小数据。比较数字之前，先核对输出中的实际数据路径、词表大小和单词数，不要把课堂完整语料的
+loss 当作你必须复现的常数。</p>
+<h2 id="按症状寻找缺失的概念">15.3 按症状寻找缺失的概念</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>现象</th>
+<th>优先检查什么</th>
+<th>原因对应哪一节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>概率表行和不是 1</td>
+<td><code>dim</code>、<code>keepdim</code>、分母是不是行总数</td>
+<td>第 5–6 节：条件概率范围</td>
+</tr>
+<tr>
+<td>一个新名字 NLL 是无穷大</td>
+<td>是否包含模型赋零概率的真实转移</td>
+<td>第 7–8 节：<code>log(0)</code></td>
+</tr>
+<tr>
+<td>概率表出现 NaN</td>
+<td>是否在无平滑时除以空行总数 0</td>
+<td>第 8 节：未观察到的输入行</td>
+</tr>
+<tr>
+<td>loss 能算，但权重无梯度</td>
+<td>是否 detach、item、重新包装了计算图</td>
+<td>第 13 节：可微路径</td>
+</tr>
+<tr>
+<td>loss 上下跳或越来越大</td>
+<td>学习率、梯度是否意外累加、目标索引</td>
+<td>第 12–13 节：优化实际算的量</td>
+</tr>
+<tr>
+<td>每次生成都一样</td>
+<td>是否使用 argmax，或每个名字都重设种子</td>
+<td>第 9 节：采样与贪心</td>
+</tr>
+<tr>
+<td>train 降低，dev 变差</td>
+<td>泛化、训练轮次和平滑/正则设置</td>
+<td>本节：留出评估</td>
+</tr>
+<tr>
+<td>neural 比 count 略差</td>
+<td>比较口径、正则、收敛和零概率极限</td>
+<td>第 14 节：模型与优化的区别</td>
+</tr>
+</tbody>
+</table>
+<p>排查顺序是先核对一个具体样本，再核对小
+batch，最后才检查完整语料。大数据上的一个总
+loss，很难告诉你究竟是哪一步理解错了。</p>
+<hr />
+<h1 id="自测与-lab-衔接">16. 自测与 Lab 衔接</h1>
+<h2 id="自测题">16.1 自测题</h2>
+<p>先写下答案，再看后面的解答。能够复述句子还不够，要能画表或代数字。</p>
+<ol type="1">
+<li>一个长度为 4 的名字，采用本 Lab 的边界约定，产生多少训练样本？</li>
+<li>对 <code>ab, aa</code>，为什么
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">P(b\mid a)=1/3</annotation></semantics></math>，而不是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>6</mn></mrow><annotation encoding="application/x-tex">1/6</annotation></semantics></math>？</li>
+<li>用未平滑表计算 <code>a</code>
+的完整名字概率；它虽然没出现在训练列表里，概率是否为零？</li>
+<li>对 <code>ab, aa</code>，为什么平均 NLL 的分母是
+6？假如漏掉结束边，改变了什么？</li>
+<li>给每格加
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+后，为什么分母必须加
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>α</mi></mrow><annotation encoding="application/x-tex">V\alpha</annotation></semantics></math>？</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n_i=0</annotation></semantics></math>
+且
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha=0</annotation></semantics></math>
+时，概率行是否有定义？<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha&gt;0</annotation></semantics></math>
+呢？</li>
+<li>当前字符为 <code>b</code> 时，one-hot 乘
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+选中哪一行？这与整数 <code>2</code> 乘
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+有何不同？</li>
+<li>为什么 <code>(0,1,2)</code> 与 <code>(10,11,12)</code> 的 softmax
+相同？</li>
+<li>对预测
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0.1</mn><mo>,</mo><mn>0.2</mn><mo>,</mo><mn>0.7</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0.1,0.2,0.7)</annotation></semantics></math>、真实类别
+<code>a</code>，写出对 logits 的单样本梯度。</li>
+<li>六个样本的完整 batch 中，为什么零初始化时 <code>a</code>
+行梯度为零？</li>
+<li>某神经 bigram 的训练 NLL 比同数据未平滑计数 MLE
+明显更低，应该先相信它更强吗？</li>
+<li>两个前缀最后一个字符相同，训练这个 bigram
+更久能让它给出不同分布吗？</li>
+</ol>
+<h2 id="自测解答">16.2 自测解答</h2>
+<ol type="1">
+<li>5 个。包括第一次从边界预测首字符，以及最后预测结束。</li>
+<li>固定当前字符为 <code>a</code> 后只有 3 次观测，<code>a → b</code>
+占其中 1
+次。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>6</mn></mrow><annotation encoding="application/x-tex">1/6</annotation></semantics></math>
+是它在全部转移中的比例。</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="monospace">𝚊</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>∣</mo><mi>.</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>.</mi><mo>∣</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">P(\texttt{a})=P(a\mid .)P(.\mid a)=1/3</annotation></semantics></math>。模型复用局部转移，可以生成未出现过的完整字符串。</li>
+<li>两个名字各有 3
+个预测事件。漏结束边会改变训练数据、学到的终止行为，以及 NLL
+的评分口径。</li>
+<li>一行有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+个格子，每格各加
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>，总数就增加
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mi>α</mi></mrow><annotation encoding="application/x-tex">V\alpha</annotation></semantics></math>。</li>
+<li>无平滑是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>/</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">0/0</annotation></semantics></math>，数据没有决定这一行。正平滑时每项是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">1/V</annotation></semantics></math>。</li>
+<li>选第 2 行，按从 0 开始编号就是第三行。one-hot 是选择开关，数值
+<code>2 * W</code> 是把整张矩阵乘 2。</li>
+<li>分子与分母都多了同一个因子
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mn>10</mn></msup><annotation encoding="application/x-tex">e^{10}</annotation></semantics></math>，约掉后不变。</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>−</mo><mi>q</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0.1</mn><mo>,</mo><mi>−</mi><mn>0.8</mn><mo>,</mo><mn>0.7</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p-q=(0.1,-0.8,0.7)</annotation></semantics></math>。如果
+loss 是多个样本的平均，还需考虑平均的缩放与重复输入累加。</li>
+<li>这行三个真实后继各出现一次，经验分布正好均匀，三个样本的梯度合计抵消。</li>
+<li>先查是否漏算边界、用错平均分母、用了不同数据，或比较了不同目标。相同自由概率表上的纯训练
+NLL 已被 MLE 最小化，明显低于它不符合这个设定。</li>
+<li>不能。输入信息被限制为最后一个字符，模型无从区分；需要改变上下文表示。</li>
+</ol>
+<h2 id="每一段阅读对应哪个-todo">16.3 每一段阅读对应哪个 TODO</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Lab 位置</th>
+<th>先读这里</th>
+<th>动手前应能解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TODO 1 <code>build_vocab</code></td>
+<td>第 1、4 节</td>
+<td>token、边界和确定性编号</td>
+</tr>
+<tr>
+<td>TODO 2 <code>build_bigram_counts</code></td>
+<td>第 3–4 节</td>
+<td>一条转移对应哪个格子</td>
+</tr>
+<tr>
+<td>TODO 3 <code>counts_to_probabilities</code></td>
+<td>第 5、6、8 节</td>
+<td>行归一化和平滑分母</td>
+</tr>
+<tr>
+<td>TODO 4 <code>average_nll</code></td>
+<td>第 7 节</td>
+<td>对什么取 log，对多少事件平均</td>
+</tr>
+<tr>
+<td>TODO 5 <code>sample_bigram</code></td>
+<td>第 9 节</td>
+<td>何时开始、采样、停止和截断</td>
+</tr>
+<tr>
+<td>TODO 6 <code>build_bigram_dataset</code></td>
+<td>第 4、10 节</td>
+<td>输入与目标一一对齐及 shape</td>
+</tr>
+<tr>
+<td>TODO 7a <code>neural_bigram_loss</code></td>
+<td>第 11–14 节</td>
+<td>logits、CE、正则的不同作用</td>
+</tr>
+<tr>
+<td>TODO 7b <code>train_neural_bigram</code></td>
+<td>第 13–14 节</td>
+<td>梯度、叶子参数、更新与返回值</td>
+</tr>
+</tbody>
+</table>
+<p>回到 <a href="README.md">Lab 作业说明</a> 后按阶段跑
+checks。<code>lab01_bigram.py</code>
+中的函数留给你自己实现；本讲义提供的是解释、手算与局部核对实验。</p>
+<hr />
+<h1 id="可运行的核对实验">17. 可运行的核对实验</h1>
+<p>下面这一个代码块可以独立运行，不依赖你是否完成了 Lab 的
+TODO。它直接写出本例已手算的输入与计数，用于验证数学理解。</p>
+<p>在仓库根目录运行
+<code>uv run python</code>，把整段粘贴进去，或保存为临时 Python 文件后用
+<code>uv run python 文件路径</code> 执行。它只需要 PyTorch 和 Python
+标准库。</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 本讲义固定的六次转移。行、列顺序为 .、a、b。</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> torch.tensor([[<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>], [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]], dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>], dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.tensor([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>], dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;uniform NLL:&quot;</span>, math.log(V))</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> (<span class="fl">0.0</span>, <span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">10.0</span>):</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> C <span class="op">+</span> alpha</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> counts <span class="op">/</span> counts.<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    train_nll <span class="op">=</span> <span class="op">-</span>P[x, y].log().mean()</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 留出示例 ba 的三条边：.→b、b→a、a→.</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    dev_nll <span class="op">=</span> <span class="op">-</span>P[[<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>], [<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>]].log().mean()</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;alpha=</span><span class="sc">{</span>alpha<span class="sc">:4.1f}</span><span class="ss"> train=</span><span class="sc">{</span>train_nll<span class="sc">.</span>item()<span class="sc">:.6f}</span><span class="ss"> ba=</span><span class="sc">{</span>dev_nll<span class="sc">.</span>item()<span class="sc">:.6f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co"># one-hot 乘法和整数查行是否相同？</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>W_demo <span class="op">=</span> torch.arange(<span class="dv">9</span>, dtype<span class="op">=</span>torch.float64).reshape(V, V)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> F.one_hot(x, num_classes<span class="op">=</span>V).to(torch.float64)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;one-hot == indexing:&quot;</span>, torch.equal(X <span class="op">@</span> W_demo, W_demo[x]))</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 对一个样本核对 CE = NLL，以及 d(loss)/d(logits) = p - q。</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> torch.tensor([[<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>]], dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> torch.tensor([<span class="dv">1</span>], dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> F.cross_entropy(z, target)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>manual_nll <span class="op">=</span> <span class="op">-</span>F.log_softmax(z, dim<span class="op">=</span><span class="dv">1</span>)[<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> F.one_hot(target, num_classes<span class="op">=</span>V).to(torch.float64)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>expected_grad <span class="op">=</span> z.detach().softmax(dim<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> q</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;CE = NLL:&quot;</span>, torch.allclose(loss, manual_nll), loss.item())</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;gradient = p - q:&quot;</span>, torch.allclose(z.grad, expected_grad))</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;single gradient:&quot;</span>, z.grad)</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 六个样本、零初始化、无正则，只做一次梯度更新。</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> torch.zeros((V, V), dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>before <span class="op">=</span> F.cross_entropy(W[x], y)</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>before.backward()</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>expected_W_grad <span class="op">=</span> (C.<span class="bu">sum</span>(<span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>) <span class="op">*</span> W.detach().softmax(<span class="dv">1</span>) <span class="op">-</span> C) <span class="op">/</span> <span class="bu">len</span>(x)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;batch gradient matches counts:&quot;</span>, torch.allclose(W.grad, expected_W_grad))</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;batch gradient:</span><span class="ch">\n</span><span class="st">&quot;</span>, W.grad)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    W <span class="op">-=</span> W.grad  <span class="co"># 学习率为 1</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> F.cross_entropy(W[x], y)</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;one update: </span><span class="sc">{</span>before<span class="sc">.</span>item()<span class="sc">:.6f}</span><span class="ss"> -&gt; </span><span class="sc">{</span>after<span class="sc">.</span>item()<span class="sc">:.6f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="co"># 任意严格正概率表都能通过 W=log(P) 被 softmax 表示。</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>smoothed <span class="op">=</span> (C <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> (C <span class="op">+</span> <span class="dv">1</span>).<span class="bu">sum</span>(<span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;softmax(log(P)) = P:&quot;</span>, torch.allclose(smoothed.log().softmax(<span class="dv">1</span>), smoothed))</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 核对三条具体生成路径的概率，不依赖随机抽样碰巧抽到它们。</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>P0 <span class="op">=</span> C <span class="op">/</span> C.<span class="bu">sum</span>(<span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>ab_prob <span class="op">=</span> P0[<span class="dv">0</span>, <span class="dv">1</span>] <span class="op">*</span> P0[<span class="dv">1</span>, <span class="dv">2</span>] <span class="op">*</span> P0[<span class="dv">2</span>, <span class="dv">0</span>]</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>aa_prob <span class="op">=</span> P0[<span class="dv">0</span>, <span class="dv">1</span>] <span class="op">*</span> P0[<span class="dv">1</span>, <span class="dv">1</span>] <span class="op">*</span> P0[<span class="dv">1</span>, <span class="dv">0</span>]</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>aab_prob <span class="op">=</span> P0[<span class="dv">0</span>, <span class="dv">1</span>] <span class="op">*</span> P0[<span class="dv">1</span>, <span class="dv">1</span>] <span class="op">*</span> P0[<span class="dv">1</span>, <span class="dv">2</span>] <span class="op">*</span> P0[<span class="dv">2</span>, <span class="dv">0</span>]</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;P(ab), P(aa), P(aab):&quot;</span>, ab_prob.item(), aa_prob.item(), aab_prob.item())</span></code></pre></div>
+<p>关键输出应当包括：</p>
+<pre class="text"><code>uniform NLL: 1.0986122886681098
+alpha= 0.0 train=0.549306 ba=inf
+alpha= 0.1 train=0.607472 ba=2.266352
+alpha= 1.0 train=0.835106 ba=1.364782
+alpha=10.0 train=1.048931 ba=1.131055
+one-hot == indexing: True
+CE = NLL: True 1.4076059644443804
+gradient = p - q: True
+batch gradient matches counts: True
+one update: 1.098612 -&gt; 1.010797
+softmax(log(P)) = P: True</code></pre>
+<p>运行前先预测三个变化：把目标从 <code>a</code> 改成 <code>b</code>
+后梯度怎样变；把整行 logits 加 100 后 loss 是否变；把
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+调得非常大后两组 NLL 趋向哪里。再修改代码验证。</p>
+<hr />
+<h1 id="appendix-mle">附录 A. 任意计数下最大似然估计的完整推导</h1>
+<p>这一部分解释第 5
+节的结论为何对任意词表与计数成立。需要基本求导；第一次阅读可以在理解手算例子后暂时跳过。</p>
+<h2 id="a.1-先说明优化变量和约束">A.1 先说明优化变量和约束</h2>
+<p>固定当前 token 为某个
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>，把这一行简写为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo>∣</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_j=P(j\mid i)</annotation></semantics></math>，计数简写为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>j</mi></msub><mo>=</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">c_j=C_{ij}</annotation></semantics></math>，行总数为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>c</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n=\sum_jc_j&gt;0</annotation></semantics></math>。</p>
+<p>要找的是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+个概率
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>j</mi></msub><annotation encoding="application/x-tex">p_j</annotation></semantics></math>，它们满足：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>≥</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p_j\ge0,\qquad \sum_jp_j=1.
+</annotation></semantics></math></p>
+<p>先假设每个
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c_j&gt;0</annotation></semantics></math>，这样最优解必须在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p_j&gt;0</annotation></semantics></math>
+的内部；否则某个真实观测的概率为零，会使似然为零。</p>
+<h2 id="a.2-相同结果出现多次概率就出现多次">A.2
+相同结果出现多次，概率就出现多次</h2>
+<p>第
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+种后继出现
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>j</mi></msub><annotation encoding="application/x-tex">c_j</annotation></semantics></math>
+次，因此该行的似然可以合并成：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">ℒ</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∏</mo><mi>j</mi></munder><msubsup><mi>p</mi><mi>j</mi><msub><mi>c</mi><mi>j</mi></msub></msubsup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathcal L_i=\prod_jp_j^{c_j}.
+</annotation></semantics></math></p>
+<p>这是把固定观测序列中的相同因子收集到一起。若从“只关心各类别计数”的多项分布形式开始，还会出现一个与
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+无关的组合系数，它不改变最大值的位置。</p>
+<p>取自然对数：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi mathvariant="script">ℒ</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>c</mi><mi>j</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\log\mathcal L_i=\sum_jc_j\log p_j.
+</annotation></semantics></math></p>
+<p>我们要最大化这个函数，同时保持概率和等于 1。</p>
+<h2 id="a.3-为什么需要处理约束">A.3 为什么需要处理约束</h2>
+<p>如果忽略
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sum_jp_j=1</annotation></semantics></math>，我们会想把所有观测类别的概率都调到
+1，这是不合法的。</p>
+<p>可以用 Lagrange 乘子把约束加入目标。引入一个辅助数
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>c</mi><mi>j</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>j</mi></msub><mo>+</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>p</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\Phi(p,\mu)=\sum_jc_j\log p_j+\mu\left(1-\sum_jp_j\right).
+</annotation></semantics></math></p>
+<p>乘子法的作用是在总概率预算固定为 1 的条件下寻找驻点。对
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+求导为零会恢复约束
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">1-\sum_jp_j=0</annotation></semantics></math>。</p>
+<p>对每个
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>j</mi></msub><annotation encoding="application/x-tex">p_j</annotation></semantics></math>
+求导并令其为零：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi mathvariant="normal">Φ</mi></mrow><mrow><mi>∂</mi><msub><mi>p</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><mfrac><msub><mi>c</mi><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub></mfrac><mo>−</mo><mi>μ</mi><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial\Phi}{\partial p_j}=\frac{c_j}{p_j}-\mu=0.
+</annotation></semantics></math></p>
+<p>移项可得：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mfrac><msub><mi>c</mi><mi>j</mi></msub><mi>μ</mi></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p_j=\frac{c_j}{\mu}.
+</annotation></semantics></math></p>
+<p>把所有
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>j</mi></msub><annotation encoding="application/x-tex">p_j</annotation></semantics></math>
+相加，并使用总和为 1 的条件：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>c</mi><mi>j</mi></msub></mrow><mi>μ</mi></mfrac><mo>=</mo><mfrac><mi>n</mi><mi>μ</mi></mfrac><mspace width="1.0em"></mspace><mo>⇒</mo><mspace width="1.0em"></mspace><mi>μ</mi><mo>=</mo><mi>n</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+1=\sum_jp_j=\frac{\sum_jc_j}{\mu}=\frac n\mu
+\quad\Longrightarrow\quad\mu=n.
+</annotation></semantics></math></p>
+<p>代回去：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mfrac><msub><mi>c</mi><mi>j</mi></msub><mi>n</mi></mfrac></mrow></menclose><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boxed{p_j=\frac{c_j}{n}}.
+</annotation></semantics></math></p>
+<p>由于
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">log</mi><annotation encoding="application/x-tex">\log</annotation></semantics></math>
+是凹函数，非负计数加权的 log-likelihood
+也是凹函数，概率约束集合是凸的。所有计数为正时，上面找到的是唯一的概率最优解，而不是任意局部点。</p>
+<h2 id="a.4-零计数和整行空缺怎样处理">A.4 零计数和整行空缺怎样处理</h2>
+<p>如果某个
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c_j=0</annotation></semantics></math>，这一类没有被观察到。只要该行有其他真实观测，给零计数类别分配正概率，就会占用本可以分给已观察类别的概率预算。因此未平滑
+MLE 把这类概率设为零。</p>
+<p>对计数为正的类别重复上面的推导，仍得到
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><msub><mi>c</mi><mi>j</mi></msub><mi>/</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">p_j=c_j/n</annotation></semantics></math>。不能直接在
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p_j=0</annotation></semantics></math>
+处机械地使用
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>j</mi></msub><mi>/</mi><msub><mi>p</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">c_j/p_j</annotation></semantics></math>
+的内部求导步骤。</p>
+<p>在合并的 log-likelihood 公式中，零计数项按约定贡献
+0。数值代码直接计算 <code>0 * log(0)</code> 可能得到 NaN，所以实际 NLL
+最容易通过逐条真实转移索引计算，或显式屏蔽零计数项。</p>
+<p>若整行
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n=0</annotation></semantics></math>，没有任何数据项依赖这行概率，每种合法分布都同样符合观测，MLE
+无法唯一决定该行。平滑或其他先验假设才会给它一个具体分布。</p>
+<h2 id="a.5-为什么可以一行一行求">A.5 为什么可以一行一行求</h2>
+<p>整份数据的 log-likelihood 可以写成：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi mathvariant="script">ℒ</mi><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>C</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\log\mathcal L=\sum_i\sum_j C_{ij}\log P_{ij}.
+</annotation></semantics></math></p>
+<p>每一行只有自己那一行的概率变量，并且每一行各有“和为
+1”的约束。不同的行没有共享参数，因此可以分别优化。</p>
+<p>这也说明后续引入共享神经特征后，为何不再能简单地独立归一化每一行就完成所有训练：不同输入的预测会通过共同参数相互联系。</p>
+<hr />
+<h1 id="外部课程怎么配合使用">18. 外部课程怎么配合使用</h1>
+<p>不用把下面资料全部看完才开始做题。先读本讲义，遇到某个解释仍不清楚时，再定向补一处。</p>
+<h2 id="karpathy看语言模型怎样落到程序上">18.1
+Karpathy：看语言模型怎样落到程序上</h2>
+<ul>
+<li><a href="https://karpathy.ai/zero-to-hero.html">官方课程页：Neural
+Networks: Zero to Hero</a></li>
+<li><a
+href="https://www.youtube.com/watch?v=PaCmpygFfXo">第一课视频：The
+spelled-out intro to language modeling: building makemore</a></li>
+<li><a
+href="https://github.com/karpathy/nn-zero-to-hero/blob/master/lectures/makemore/makemore_part1_bigrams.ipynb">官方课堂
+notebook</a></li>
+</ul>
+<p>适合对照第 4、6、9–14
+节，把统计、张量和训练连接起来。课程页明确说明这一课覆盖字符级
+bigram、张量、采样与 NLL。</p>
+<p>观看时每出现一行代码，就暂停说明“它实现哪一个数学操作、输入输出各是什么”。官方
+notebook 可留到自己完成相应 TODO
+后核对。本次核验了官方课程介绍与资源链接，没有把视频逐字转录或给出未经核验的分钟定位。</p>
+<h2 id="jurafsky-与-martin补建模背景和概率思路">18.2 Jurafsky 与
+Martin：补建模背景和概率思路</h2>
+<ul>
+<li><a href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">《Speech and
+Language Processing》第 3 章：N-gram Language Models</a></li>
+</ul>
+<p>建议定向阅读第 3.1 节的链式分解、Markov 假设和概率估计，以及第
+3.6.1–3.6.2 节的平滑。教材以单词/token
+为主，本讲义已经把实验实例换成字符。</p>
+<p>它适合回答“为什么要估计条件概率”“为什么缩短历史”“为什么没见过的事件会造成问题”。一般
+MLE 的求导细节可用本讲义附录 A 补齐。</p>
+<h2 id="动手学深度学习补分类损失与导数">18.3
+《动手学深度学习》：补分类损失与导数</h2>
+<ul>
+<li><a
+href="https://zh.d2l.ai/chapter_linear-networks/softmax-regression.html">中文：softmax
+回归</a></li>
+<li><a
+href="https://d2l.ai/chapter_linear-classification/softmax-regression.html">英文：Softmax
+Regression</a></li>
+</ul>
+<p>重点看分类输出、softmax、似然和交叉熵部分，配合本讲义第 11–13
+节。不同版本可能采用不同矩阵方向和下标，不要只对照公式外形，先核对哪一维是样本、哪一维是类别。</p>
+<h2 id="pytorch用于核对接口不承担第一遍概念讲解">18.4
+PyTorch：用于核对接口，不承担第一遍概念讲解</h2>
+<ul>
+<li><a
+href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html">cross_entropy</a></li>
+<li><a
+href="https://docs.pytorch.org/docs/stable/notes/broadcasting.html">Broadcasting
+semantics</a></li>
+</ul>
+<p>重点确认 logits 与 target
+的含义、shape、默认平均，以及广播从末尾维度对齐的规则。</p>
+<p>资料检索日期：2026-09-20（UTC）。上述教学资源使用一手课程、作者教材和官方文档；正文中的小数据数值以第
+17 节的可运行实验为准。</p>
+</body>
+</html>

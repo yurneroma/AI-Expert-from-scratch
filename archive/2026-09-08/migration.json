@@ -1,0 +1,332 @@
+[
+  {
+    "from": "README.md",
+    "to": "archive/2026-09-08/README.md",
+    "sha256": "d3206fa838b78532b457d34ef1e33d27301b2773ac16f8669cc4db69318b079f"
+  },
+  {
+    "from": "ROADMAP.md",
+    "to": "archive/2026-09-08/ROADMAP.md",
+    "sha256": "e28482f4d0a91a0249d79940d5eaa93cbea21fcc9d64f02d63bda57ce51a7770"
+  },
+  {
+    "from": "PROGRESS.md",
+    "to": "archive/2026-09-08/PROGRESS.md",
+    "sha256": "0fcd41a1eed7fb9ea4ca5cab2161228b8480848752fdae4955ab42cfd6b0cedb"
+  },
+  {
+    "from": "01-micrograd/README.md",
+    "to": "archive/2026-09-08/01-micrograd/README.md",
+    "sha256": "51184012f37a079cfb7f1a1e6ce976b11034352a6e9fc803878adaa0cb00cab1"
+  },
+  {
+    "from": "01-micrograd/GUIDE.md",
+    "to": "archive/2026-09-08/01-micrograd/GUIDE.md",
+    "sha256": "acdaab364a4513a68f8650c8b78b3fd438b49296d4f24870d15d655a81c76dc9"
+  },
+  {
+    "from": "02-makemore/README.md",
+    "to": "archive/2026-09-08/02-makemore/README.md",
+    "sha256": "24706a770d891d3e1b4a64fd3a42a30e3b0c53ae4d1efdeba0338fa551eec2a0"
+  },
+  {
+    "from": "02-makemore/GUIDE.md",
+    "to": "archive/2026-09-08/02-makemore/GUIDE.md",
+    "sha256": "a4618aad9d9c297487dc69ccc6217d60baa35c4643ea3b07d845bead01164709"
+  },
+  {
+    "from": "01-micrograd/engine.py",
+    "to": "01-micrograd/shared/engine.py",
+    "sha256": "319b1081db5ae219278365bb862f89c1fd1731c1ba969f9ffafe5405ddd5e639"
+  },
+  {
+    "from": "01-micrograd/nn.py",
+    "to": "01-micrograd/shared/nn.py",
+    "sha256": "520b3eadba505db318e4b0aa4438fc338de3639661f6ba47e0b254918e2463c6"
+  },
+  {
+    "from": "01-micrograd/visualize.py",
+    "to": "01-micrograd/shared/visualize.py",
+    "sha256": "96417b9d06aef62ad96059a3a001641872931d83e7d3d8b145a089450a91be3d"
+  },
+  {
+    "from": "01-micrograd/test_engine.py",
+    "to": "01-micrograd/01-autograd/test_engine.py",
+    "sha256": "b57288003a6dc7b58cd5bcde442454d2182b6561305eabfe294659fa8cf46616"
+  },
+  {
+    "from": "01-micrograd/demo_grad_check.py",
+    "to": "01-micrograd/01-autograd/demo_grad_check.py",
+    "sha256": "6c12434db4466f3b3188058cbfacc091b7e7b2cfcbbdc1443ae087fa5196d3e3"
+  },
+  {
+    "from": "01-micrograd/demo_visualize.py",
+    "to": "01-micrograd/01-autograd/demo_visualize.py",
+    "sha256": "80506b80db42805055647a253731f2449eaa47763c78e780ca6b2c9a6f460948"
+  },
+  {
+    "from": "01-micrograd/graph.svg",
+    "to": "01-micrograd/01-autograd/graph.svg",
+    "sha256": "2ed070d1e1a412392e6139c4c8ccba62927d56a7d5420337d4f865791a128d00"
+  },
+  {
+    "from": "01-micrograd/notes/day1-fanout.PNG",
+    "to": "01-micrograd/01-autograd/notes/day1-fanout.PNG",
+    "sha256": "3869351721f78d8532e735354236e3b0a13598db6fc7ccd20adcf0868c9c1388"
+  },
+  {
+    "from": "01-micrograd/notes/day1-mul-add.PNG",
+    "to": "01-micrograd/01-autograd/notes/day1-mul-add.PNG",
+    "sha256": "4e5b999e67dae3e9fa5ec5b080c41f2996cd643696da86d13b1b087785d870e6"
+  },
+  {
+    "from": "01-micrograd/notes/day1-tanh.PNG",
+    "to": "01-micrograd/01-autograd/notes/day1-tanh.PNG",
+    "sha256": "f09dd117a1c98afbedabcb04c2219c4f5e22ad5830165d106116d5e09c9bc440"
+  },
+  {
+    "from": "01-micrograd/test_nn.py",
+    "to": "01-micrograd/02-mlp/test_nn.py",
+    "sha256": "da1d1b5a398333001b1efc7b168daa76cff48021f21921f47a154d5afe8a612e"
+  },
+  {
+    "from": "01-micrograd/test_torch_alignment.py",
+    "to": "01-micrograd/02-mlp/test_torch_alignment.py",
+    "sha256": "b4ae9c49e4a493689db5352e5c9991a88be3fa8c2623f8721339ebdf6a453511"
+  },
+  {
+    "from": "01-micrograd/DAY4_LAB.md",
+    "to": "01-micrograd/02-mlp/README.md",
+    "sha256": "300bf0e77d6eb6a678753a650a040bf9013b5501d35183f08c37b0442904fdfa"
+  },
+  {
+    "from": "01-micrograd/train_moon.py",
+    "to": "01-micrograd/03-training/train_moon.py",
+    "sha256": "cb7fcd9a59ae73f7207c34c77b2b7c4fb1057894d83b61fd52165ed11840f3f9"
+  },
+  {
+    "from": "01-micrograd/test_train_moon.py",
+    "to": "01-micrograd/03-training/test_train_moon.py",
+    "sha256": "fe549c39adfa9c9e26b3b74c5b738f1a0dbcea3e2ecf102bbfe477cc7275e186"
+  },
+  {
+    "from": "01-micrograd/loss_curve.png",
+    "to": "01-micrograd/03-training/loss_curve.png",
+    "sha256": "3fb56d34a630b3b9a25b7492895850732e6a8fb5804d7fe47be8d05cb38d7b01"
+  },
+  {
+    "from": "01-micrograd/decision_boundary.png",
+    "to": "01-micrograd/03-training/decision_boundary.png",
+    "sha256": "d197d9193ed1ba939c7b03bb0192f0045808b27ee333a9e711321696d2e20875"
+  },
+  {
+    "from": "01-micrograd/moons_dataset.png",
+    "to": "01-micrograd/03-training/moons_dataset.png",
+    "sha256": "a977043e86842bf15dad84224f1de8e3cafe1980afc1e196d9900d2cfeab6ac5"
+  },
+  {
+    "from": "01-micrograd/DAY5_LAB.md",
+    "to": "01-micrograd/03-training/README.md",
+    "sha256": "4d30a4d369e47a2962791bb9bdfc62e3c7272ffd0f6126c5670e6c2088f698d3"
+  },
+  {
+    "from": "02-makemore/labs/LAB01_BIGRAM.md",
+    "to": "02-makemore/01-bigram/README.md",
+    "sha256": "26004567695a098417eff2e13f5941a96791e47dacf4c87266b4731ca8cc9412"
+  },
+  {
+    "from": "02-makemore/slides/01_bigram_language_model.md",
+    "to": "02-makemore/01-bigram/slides.md",
+    "sha256": "d960e7b797f7c5e82254332d0ef39c42ef64d722b966eaf52e80ade3cc15bdf3"
+  },
+  {
+    "from": "02-makemore/notes/lab01.md",
+    "to": "02-makemore/01-bigram/notes.md",
+    "sha256": "5944bf555c89a69d9aa32db13fb07bcd9260760b11ebe51733f476676651be76"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab01_bigram.py",
+    "to": "02-makemore/01-bigram/lab01_bigram.py",
+    "sha256": "56789d3e2a233fa1c197c85a14f1e9d313bdd39db5e5a530098c14b5a1b3ca2d"
+  },
+  {
+    "from": "02-makemore/checks/check_lab01_bigram.py",
+    "to": "02-makemore/01-bigram/check_lab01_bigram.py",
+    "sha256": "390029ddbfdfcd2297968119243ba3b9082899e3215baa0d1566716c442fb79f"
+  },
+  {
+    "from": "02-makemore/labs/LAB02_MLP.md",
+    "to": "02-makemore/02-mlp/README.md",
+    "sha256": "459a3c33bcd782d4b2b724b93c97ca41b8515488fc15e308facb7b6c3378ca81"
+  },
+  {
+    "from": "02-makemore/slides/02_mlp_language_model.md",
+    "to": "02-makemore/02-mlp/slides.md",
+    "sha256": "25ffcac9e7194ce24288eae6c665da6bfc2774623abe7ae55617da7cbf986561"
+  },
+  {
+    "from": "02-makemore/notes/lab02.md",
+    "to": "02-makemore/02-mlp/notes.md",
+    "sha256": "b369a60e0a99582ad31a9a91c3f0ff539037233a855b2fc1cf7998dd9bc4ac99"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab02_mlp.py",
+    "to": "02-makemore/02-mlp/lab02_mlp.py",
+    "sha256": "3b1a24a011a21892bba56d3e665fc82b516a8104fb309014cc6b9d8d7c3abdf1"
+  },
+  {
+    "from": "02-makemore/checks/check_lab02_mlp.py",
+    "to": "02-makemore/02-mlp/check_lab02_mlp.py",
+    "sha256": "adcd992f97ddd47b2886afe4072dac20c7885ea8aec588c3be246e9bde2e7df0"
+  },
+  {
+    "from": "02-makemore/labs/LAB03_DIAGNOSTICS.md",
+    "to": "02-makemore/03-diagnostics/README.md",
+    "sha256": "ba2ee2db4a7000e049e18b33b82029239a32cf746ac360f0f802da3b6d7ff1fb"
+  },
+  {
+    "from": "02-makemore/slides/03_initialization_and_diagnostics.md",
+    "to": "02-makemore/03-diagnostics/slides.md",
+    "sha256": "5ee3ddb0a5ea894c4e3a6206c4018e5bef7b5379477551265707a76d4e88b63b"
+  },
+  {
+    "from": "02-makemore/notes/lab03.md",
+    "to": "02-makemore/03-diagnostics/notes.md",
+    "sha256": "c5d86fc01cef1d75e510d17f6f6480d7bb3c8eb563dc98fc7e6bd2297130460a"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab03_diagnostics.py",
+    "to": "02-makemore/03-diagnostics/lab03_diagnostics.py",
+    "sha256": "8499531dd1071a8fe5a5ae01c8e0f979f078f748d020547c4c2e075dbe3d699e"
+  },
+  {
+    "from": "02-makemore/checks/check_lab03_diagnostics.py",
+    "to": "02-makemore/03-diagnostics/check_lab03_diagnostics.py",
+    "sha256": "a6664b22185dd359d4b0741f23ed2b8c5263ad4c6969749ce22580c73fa67406"
+  },
+  {
+    "from": "02-makemore/labs/LAB04_BATCHNORM.md",
+    "to": "02-makemore/04-batchnorm/README.md",
+    "sha256": "57a99df24dc124ac133daab6fe59a8b3c542af18d1c13a53bb568bc445380f64"
+  },
+  {
+    "from": "02-makemore/slides/04_batch_normalization.md",
+    "to": "02-makemore/04-batchnorm/slides.md",
+    "sha256": "d13f0ba433c5733533476d51c5a826ea394a12d7b9aa875bcc349253d686f326"
+  },
+  {
+    "from": "02-makemore/notes/lab04.md",
+    "to": "02-makemore/04-batchnorm/notes.md",
+    "sha256": "2986d70052f263beb1411bf1fcc697cee26131ffa4a8f3ac0a59e17cc1d659d1"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab04_batchnorm.py",
+    "to": "02-makemore/04-batchnorm/lab04_batchnorm.py",
+    "sha256": "5641c108822c51b523ad2d768a61959e19d3dec590bb4b16260806f73a7e5c27"
+  },
+  {
+    "from": "02-makemore/checks/check_lab04_batchnorm.py",
+    "to": "02-makemore/04-batchnorm/check_lab04_batchnorm.py",
+    "sha256": "6a37a94f92ddbf7ee94f33529ab1f0d5a5283c4353d5debe4a38e5585e566901"
+  },
+  {
+    "from": "02-makemore/labs/LAB05_BACKPROP.md",
+    "to": "02-makemore/05-backprop/README.md",
+    "sha256": "37f9efb94e566a4fdd37b1d16755f5aadf54f58f4d80e5cf795d20b5fdca511f"
+  },
+  {
+    "from": "02-makemore/slides/05_manual_backprop.md",
+    "to": "02-makemore/05-backprop/slides.md",
+    "sha256": "5814c12f9161069d04769eac7e0c1de82b9679669eec938d48d6d94b63fa1026"
+  },
+  {
+    "from": "02-makemore/notes/lab05.md",
+    "to": "02-makemore/05-backprop/notes.md",
+    "sha256": "5229b9f4e533ea4342c1297d362437efec65c47c5c31364d7e0e3d08db50ca27"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab05_backprop.py",
+    "to": "02-makemore/05-backprop/lab05_backprop.py",
+    "sha256": "24ad55542608f37d41aaeb4ab13ae62b596c4d6dde72b22e799b32512acea7ee"
+  },
+  {
+    "from": "02-makemore/checks/check_lab05_backprop.py",
+    "to": "02-makemore/05-backprop/check_lab05_backprop.py",
+    "sha256": "93e46d6b2d7f83e165244458057892870875fc8a77d4ac94f1c1171db7a1cd57"
+  },
+  {
+    "from": "02-makemore/labs/LAB06_WAVENET.md",
+    "to": "02-makemore/06-wavenet/README.md",
+    "sha256": "bc10fc5017e1a7261fa2ce460ed13e3f54795eb0fa073cdb93cd0fef36f77adb"
+  },
+  {
+    "from": "02-makemore/slides/06_hierarchical_wavenet.md",
+    "to": "02-makemore/06-wavenet/slides.md",
+    "sha256": "057cf498e36bd865b7941861a37bcd0d8db30ef15d21fd209b31c83d83d79f6b"
+  },
+  {
+    "from": "02-makemore/notes/lab06.md",
+    "to": "02-makemore/06-wavenet/notes.md",
+    "sha256": "c6dab97c49137bdccc98564da68c7641ac0a7f47fc45bfece57cd75a32e96fe8"
+  },
+  {
+    "from": "02-makemore/makemore_lab/lab06_wavenet.py",
+    "to": "02-makemore/06-wavenet/lab06_wavenet.py",
+    "sha256": "c44966e6000c1c849f4beb46a56f238f01d2dbdbffd6911bb82416c846fcffff"
+  },
+  {
+    "from": "02-makemore/checks/check_lab06_wavenet.py",
+    "to": "02-makemore/06-wavenet/check_lab06_wavenet.py",
+    "sha256": "9510bcd53d2814652b2e29787c6130044fb57c07a1db33b1f2cb1ad8b8d72cb6"
+  },
+  {
+    "from": "02-makemore/labs/LAB07_CAPSTONE.md",
+    "to": "02-makemore/07-capstone/README.md",
+    "sha256": "b22a4230c8fdc0bf827497ce22425b74afaa732d81669097a1db349402fd831e"
+  },
+  {
+    "from": "02-makemore/notes/lab07.md",
+    "to": "02-makemore/07-capstone/notes.md",
+    "sha256": "ea7ae610d9ddb813492bbdc1ae2694900dc8f69277796d349bba5d1ed6b918db"
+  },
+  {
+    "from": "02-makemore/makemore_lab/data.py",
+    "to": "02-makemore/shared/data.py",
+    "sha256": "89694b947a2fdba2ce2d58d38b09b3da9c99c83d3e818c51a82ca5fc09515119"
+  },
+  {
+    "from": "02-makemore/checks/check_scaffold.py",
+    "to": "02-makemore/check_scaffold.py",
+    "sha256": "cc718f3d3b40588839b5aa737a81f1632d2aba638524b709f3c894ea03bf9e66"
+  },
+  {
+    "from": "02-makemore/checks/conftest.py",
+    "to": "02-makemore/conftest.py",
+    "sha256": "78249db20d6e01d8d526753a0a97c9a7696289193a92fccd9d06d35816f1514e"
+  },
+  {
+    "from": "02-makemore/experiments/run_lab01.py",
+    "to": "02-makemore/01-bigram/run_lab01.py",
+    "sha256": "fbcac9d80865e2e91dcbcfac82d0c236a8de51ebbfe2da70f4c6f361dfb8eaa0"
+  },
+  {
+    "from": "02-makemore/notes/README.md",
+    "to": "archive/2026-09-08/02-makemore/notes/README.md",
+    "sha256": "b213803efc3990cc65a5031124319e156ae5c52d7146ff8a8193ada1b405dbba"
+  },
+  {
+    "from": "02-makemore/artifacts/README.md",
+    "to": "archive/2026-09-08/02-makemore/artifacts/README.md",
+    "sha256": "215e787649e3fc84f29ed4a7e5527f2636147f14e22ce60cac31319bf4860ebb"
+  },
+  {
+    "from": "02-makemore/experiments/README.md",
+    "to": "archive/2026-09-08/02-makemore/experiments/README.md",
+    "sha256": "87a21297aee0f3c4af64a6b5fec1ace23c02e642a4da50eefd6566c22e9c15c0"
+  },
+  {
+    "from": "02-makemore/makemore_lab/__init__.py",
+    "to": "archive/2026-09-08/02-makemore/makemore_lab/__init__.py",
+    "sha256": "dce1226df96f600f3b24478e28ac326f84f3c5360f77111899fc08e415bd3a0b"
+  }
+]

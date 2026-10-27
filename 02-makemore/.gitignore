@@ -1,0 +1,4 @@
+data/names.txt
+**/artifacts/**/*.pt
+**/artifacts/**/*.pth
+**/artifacts/**/*.ckpt
