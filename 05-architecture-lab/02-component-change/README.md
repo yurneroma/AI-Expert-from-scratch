@@ -1,26 +1,35 @@
 # Lab 02 · 改一个组件
 
-先在 [schedule](../schedule.md) 选择唯一主变更。阅读该组件的一手论文，并把用到的版本/链接记入 `notes.md`；默认问题为 RMSNorm。先推导公式，再动手。
+## Objective
 
-| 选题 | 一手阅读 | 重点 |
-|---|---|---|
-| RMSNorm | [Root Mean Square Layer Normalization](https://arxiv.org/abs/1910.07467) | 去掉重定中心、RMS 公式、实验条件 |
-| RoPE | [RoFormer](https://arxiv.org/abs/2104.09864) | Q/K 旋转、相对位置信息、长度条件 |
-| SwiGLU | [GLU Variants Improve Transformer](https://arxiv.org/abs/2002.05202) | 门控 FFN、容量配平 |
-| GQA | [GQA](https://arxiv.org/abs/2305.13245) | KV heads 分组、容量与解码效率取舍 |
+默认只把 LayerNorm 换成 RMSNorm，保留 Pre-LN 位置和可切换 baseline。先做小 tensor 数值/梯度检查，再过拟合小 batch，最后接完整训练。
 
-## 默认任务：RMSNorm
+## Start Here
 
-1. 对最后一个特征维计算 `x / sqrt(mean(x^2) + eps) * gain`，明确它与减均值的 LayerNorm 的差别。
-2. 保持 baseline 的 Pre-LN 位置不变，仅替换 norm；用配置开关保留原路径。
-3. 检查 final norm 是否一并替换，并在实验定义中固定这一选择。
-4. 训练前做小 tensor 数值检查，再做小 batch 过拟合，最后接回完整训练。
+按 [slides](slides.md)：先看清[只改哪一处](slides.md#intuition)，再完成[RMSNorm 与开关](slides.md#implementation)，随后做[模型接回与故障实验](slides.md#training)，最后选读[公式和与其他组件的关系](slides.md#derivations)。不要求先推公式才写代码。
 
-## 验收
+## Student File
 
-- float64 下与独立参考的 forward、输入梯度、gain 梯度对齐；覆盖零输入、小方差、不同 batch/序列长度。
-- 开关关闭时 baseline 输出不变；整模型保持因果性，checkpoint 记录结构配置。
-- 手工改错归一化维度时测试必须失败，证明测试能检测主要错误。
-- 参数量、FLOPs 或内存发生的差异被明确记录。
+`lab02_component_change.py`
 
-选择 RoPE 时额外测旋转与 cache offset；选择 GQA 时测 KV 分组/广播；选择 SwiGLU 时先配平中间宽度。代码与检查在进入此 Lab 时按选题补齐。
+1. `RMSNorm.forward`
+2. `build_norm`
+
+RoPE、SwiGLU、GQA 是替代选题，不与默认 RMSNorm 同时引入；对应额外检查见 slides。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 05-architecture-lab/02-component-change/check_lab02_component_change.py -k forward_and_gradients
+uv run pytest -q 05-architecture-lab/02-component-change/check_lab02_component_change.py -k zero
+uv run pytest -q 05-architecture-lab/02-component-change/check_lab02_component_change.py -k switch
+uv run pytest -q 05-architecture-lab/02-component-change/check_lab02_component_change.py
+```
+
+## Definition of Done
+
+- [ ] float64 forward、输入梯度、gain 梯度与独立参考对齐。
+- [ ] 零输入、小方差、不同 B/T 有限且 shape 不变。
+- [ ] 开关关闭时 baseline 路径不变，checkpoint 保存结构配置。
+- [ ] 故意改错归一化维度时检查失败，随后恢复。
+- [ ] 参数量/FLOPs/内存差异有记录，整模型仍保持因果。

@@ -1,19 +1,34 @@
 # Lab 06 · 可复现基线
 
-阅读：自己的 Lab 01-05 实现和配置；对照 [CS336 A1](https://github.com/stanford-cs336/assignment1-basics) 的完整训练任务，列出自己覆盖的部分。
+## Objective
 
-## 任务
+保存并恢复模型、优化器、scheduler、RNG、数据位置、tokenizer 和结构配置，让连续训练与中断恢复可对齐。
 
-1. 保存模型、优化器、scheduler、RNG 状态、数据迭代位置、tokenizer 和配置。
-2. 给训练、验证、生成各提供一条可复制命令；数据和 checkpoint 采用可配置路径。
-3. 定义最小 CPU 配置和日常训练配置，记录环境版本、硬件、耗时和峰值内存。
-4. 在本目录整理一份基线报告，供后面两门课程复用同一个模型和数据。
+## Start Here
 
-## 校验与提交
+按 [slides](slides.md)：先列出[“接着训练”需要哪些状态](slides.md#intuition)，再完成[RNG/checkpoint TODO](slides.md#implementation)，然后做[中断恢复实验](slides.md#training)，最后整理[复现契约](slides.md#derivations)。
 
-- 在确定性的 CPU 小案例中比较连续训练与中断后恢复：下一 batch、LR、loss、参数在约定容差内一致。
-- checkpoint 加载后 logits 一致；损坏或不匹配的配置给出明确错误。
-- 从干净进程执行三条命令，能恢复并生成；报告包含真实 commit 标识与检查结果。
-- 不看资料讲清一次 forward/backward，并指出第五课可以改动的具体模块。
+## Student File
 
-完成后更新 [schedule](../schedule.md)，进入 [训练系统](../../04-training-systems/schedule.md)。当前为规格，代码与自动检查随进度补齐。
+`lab06_reproducibility.py`
+
+1. `capture_rng_state` / `restore_rng_state`
+2. `save_checkpoint`
+3. `load_checkpoint`
+
+## Staged Checks
+
+```bash
+uv run pytest -q 03-transformer/06-reproducibility/check_lab06_reproducibility.py -k rng
+uv run pytest -q 03-transformer/06-reproducibility/check_lab06_reproducibility.py -k checkpoint_restores
+uv run pytest -q 03-transformer/06-reproducibility/check_lab06_reproducibility.py -k incompatible
+uv run pytest -q 03-transformer/06-reproducibility/check_lab06_reproducibility.py
+```
+
+## Definition of Done
+
+- [ ] CPU 小案例中，连续训练与恢复后的下一 batch、LR、loss、参数对齐。
+- [ ] 加载后 logits 一致，配置不匹配给清晰错误。
+- [ ] 训练、验证、生成各有一条可复制命令，数据/ckpt 路径可配置。
+- [ ] notes 记录 commit、Python/PyTorch、硬件、耗时、内存和 artifacts。
+- [ ] 能现场讲清 forward/backward，并指出第五课可替换的模块。

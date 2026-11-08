@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>可复现基线</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">可复现基线</h1>
+</header>
+<h1 id="学习路线">学习路线</h1>
+<p><a href="#intuition">状态直觉</a> → <a
+href="#implementation">checkpoint 实现</a> → <a
+href="#training">中断恢复实验</a> → <a
+href="#derivations">复现契约</a>。先明确要恢复什么，再写序列化代码。</p>
+<h1 id="intuition">第一阶段 · 只保存权重为什么不够</h1>
+<p>加载权重可以重新 forward，却不等于能从同一点继续训练。还需要：</p>
+<pre class="text"><code>step / data_position
+optimizer moments
+scheduler 或 LR 位置
+Python / torch RNG
+tokenizer 与 merge 顺序
+模型结构配置</code></pre>
+<p>缺任何一项，都可能出现“logits
+一样，但下一步训练不同”。配置兼容也必须在加载前检查，不能把不匹配的
+state_dict 底层报错当作完整契约。</p>
+<h1 id="implementation">第二阶段 · 实现</h1>
+<h2 id="todo-1-rng">TODO 1 · RNG</h2>
+<p>保存 Python <code>random</code> 和 torch CPU RNG
+的独立快照。恢复后下一组随机数应逐项一致；保存时不能留下会被后续修改的引用。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 03-transformer/06-reproducibility/check_lab06_reproducibility.py <span class="at">-k</span> rng</span></code></pre></div>
+<h2 id="todo-23-checkpoint">TODO 2–3 · checkpoint</h2>
+<p>保存模型/可选 optimizer/scheduler、step、data
+position、config、tokenizer config 和
+RNG。加载时先比结构配置，再加载状态，按参数决定是否恢复 RNG。</p>
+<p>公开检查覆盖 logits、optimizer
+state、训练位置和错误配置。设备映射、CUDA RNG 可作为实际训练的扩展，并在
+notes 写明。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 03-transformer/06-reproducibility/check_lab06_reproducibility.py <span class="at">-k</span> checkpoint_restores</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 03-transformer/06-reproducibility/check_lab06_reproducibility.py <span class="at">-k</span> incompatible</span></code></pre></div>
+<h1 id="training">第三阶段 · 中断恢复实验</h1>
+<p>用一个确定性 CPU 小模型：</p>
+<ol type="1">
+<li>跑固定 batch 序列，在中途保存。</li>
+<li>连续运行若干步，记录下一 batch、LR、loss 和参数。</li>
+<li>新进程加载 checkpoint，重跑相同后续步。</li>
+<li>在约定容差内比较。</li>
+</ol>
+<p>再执行三条干净进程命令：训练恢复、验证、生成。记录真实 commit
+和环境，不把“当前工作区”误写成可复现版本。</p>
+<h1 id="derivations">第四阶段 · 复现契约</h1>
+<p>复现报告至少回答：谁、在哪台机器、用哪个
+commit、哪份数据/tokenizer、哪个配置和 seed、运行什么命令、得到什么原始
+artifact。</p>
+<p>“随机 seed
+固定”只覆盖随机数来源之一。数据迭代位置、优化器状态和结构配置不匹配，仍然无法恢复同一训练轨迹。</p>
+<p>最小 CPU
+配置用于验证正确性，日常配置用于实验；两者应分开记录，避免把功能 smoke
+test 当成性能基线。</p>
+<h2 id="自测">自测</h2>
+<ul>
+<li>为什么 logits 一致还不能证明恢复训练一致？</li>
+<li>为什么配置应先于 state_dict 加载检查？</li>
+<li>为什么 tokenizer merge 顺序也属于 checkpoint 契约？</li>
+<li>哪些结论需要在新进程中验证？</li>
+</ul>
+<h2 id="阅读">阅读</h2>
+<p>回看自己的 Lab 01–05，再对照 <a
+href="https://github.com/stanford-cs336/assignment1-basics">CS336 A1</a>
+的完整训练任务，列出覆盖与未覆盖部分。</p>
+</body>
+</html>

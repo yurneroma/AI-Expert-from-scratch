@@ -1,24 +1,42 @@
 # Lab 01 · Tokenizer 与数据
 
-阅读：[CS336 L1：Tokenization](https://cs336.stanford.edu/spring2025-lectures/?trace=var/traces/lecture_01.json)；在 [A1](https://github.com/stanford-cs336/assignment1-basics) 中打开 handout，读 BPE training、encoding 和 data loading 的规格。
+## Objective
 
-先写出文本、UTF-8 bytes、token IDs 三者的关系，再说明 tokenizer 训练和 LM 训练的区别。
+实现 UTF-8 byte 后备编码、简化 byte-BPE、文档级 split 和下一 token batch。它不是 GPT tokenizer 的兼容实现；复杂预分词留作扩展。
 
-## 任务
+## Start Here
 
-1. 实现固定 byte 编码/解码，先构造可训练的小数据流。
-2. 实现简化 BPE：相邻 pair 计数、确定性的并列选择、merge 表、encode/decode、保存/加载。
-3. 先按文档划分 train/dev/test，再用 train 学 merge；每个 split 内独立构造输入和目标。
-4. 定义 BOS/EOS 和文档拼接规则，保证 `targets[t] == tokens[t+1]`。
+按 [slides](slides.md) 的四阶段走，不需要先读论文：
 
-本 Lab 的 BPE 可从整段 UTF-8 bytes 起步；它不是 GPT tokenizer 的完全兼容实现。特殊 token 与 regex 预分词作为扩展。
+1. [直觉](slides.md#intuition)：分清文本、bytes、token IDs，以及 tokenizer 训练与 LM 训练。
+2. [实现](slides.md#implementation)：TODO 1–6，每段立即跑检查。
+3. [数据实验](slides.md#training)：只用 train 学 merge，人工核对一个 X/Y batch。
+4. [表示与规则解释](slides.md#derivations)：实验后回看 BPE 和移位规则。
 
-## 校验与提交
+## Student File
 
-- 英文、中文、空白、空文本的 round-trip；保存/加载结果一致。
-- 手算 toy corpus 的前两次 merge，检查编码确实使用学到的 merges。
-- split 无原始文档泄漏，词表只从 train 学习；字节词表覆盖 dev 中的新字符。
-- 人工检查一个 batch 的 `X/Y`，包括上下文边界与目标移位。
-- 在本目录提交实现、检查与 `notes.md`：记录数据来源、划分规则、tokenizer 配置和样例。
+`lab01_tokenizer.py`
 
-状态见 [schedule](../schedule.md)。当前为作业规格，代码与自动检查待本课开课时补齐。
+- `byte_encode` / `byte_decode`
+- `split_documents`
+- `ByteBPETokenizer.train / encode / decode / save / load`
+- `build_next_token_batch`
+
+## Staged Checks
+
+```bash
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py -k byte_round
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py -k document_split
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py -k bpe_learns
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py -k save_load
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py -k next_token
+uv run pytest -q 03-transformer/01-tokenizer/check_lab01_tokenizer.py
+```
+
+## Definition of Done
+
+- [ ] 英文、中文、空白、空文本 round-trip。
+- [ ] 能手算 toy corpus 的两次 merge，保存/加载一致。
+- [ ] split 无文档泄漏，merge 只从 train 学习。
+- [ ] `targets[t] == tokens[t+1]`，边界与特殊 token 规则写入 notes。
+- [ ] notes 包含数据来源、配置、检查命令和样例。

@@ -16,7 +16,9 @@
 
 ## 每天只走这一条路径
 
-`README → 项目 schedule.md → 当前 Lab/README.md → slides/阅读 → 写代码 → 校验 → 提交`
+`README → 项目 schedule.md → 当前 Lab/README.md → slides 直觉 → 分段 TODO/检查 → 训练或实验 → 公式选读 → notes/提交`
+
+不要先通读公式或论文。每个 TODO 都有对应的公开检查；先让最小例子和数值对齐，再扩大训练。
 
 每个项目是一门课程，每个编号子目录是一份作业。例如：
 
@@ -24,12 +26,12 @@
 02-makemore/
   schedule.md
   01-bigram/
-    README.md              # 任务与验收
-    slides.md              # 先读讲义
-    lab01_bigram.py         # 学生代码
-    check_lab01_bigram.py   # 公开检查
+    README.md              # 任务、分阶段入口与验收
+    self-study.md          # 背景/直觉 → 代码 → 实验 → 公式
+    lab01_bigram.py         # 保留 TODO 的学生代码
+    check_lab01_bigram.py   # 每段对应的公开检查
     run_lab01.py            # 实验入口
-    notes.md               # 推导、结果、命令
+    notes.md               # 预测、结果、失败与解释
   02-mlp/
   ...
   shared/                  # 跨 Lab 复用的代码
@@ -43,6 +45,6 @@
 - 第三周开始 Transformer。先训通小模型，再研究组件；124M GPT-2、多卡、FlashAttention、MoE、RLHF 留到后续专题。
 - 结课看三件事：能解释数据与梯度流；改动经过独立数值校验；对比实验控制数据、token 预算、超参数与随机种子。改动无收益也可以是有效结论。
 
-02 已有讲义、学生 TODO、公开检查和首个实验入口；03-05 当前提供课表、阅读入口和 Lab 规格，代码脚手架与自动检查随课程推进补齐。
+02-05 均提供讲义、学生 TODO、公开检查和 notes；03-05 另有浏览器版 slides 与项目级脚手架检查。学生 Lab 检查在 TODO 完成前按预期失败，项目级 `check_scaffold.py` 用于先验证资料和环境。
 
 课程组织参考 [Karpathy Zero to Hero](https://karpathy.ai/zero-to-hero.html) 和 [CS336 2025](https://cs336.stanford.edu/spring2025/)，这是面向当前目标裁剪的自学路线。旧路线图、进度与指南完整保存在 [archive](archive/README.md)。

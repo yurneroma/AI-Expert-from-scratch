@@ -1,21 +1,34 @@
 # Lab 03 · Decoder Block 与完整模型
 
-阅读：[CS336 架构 slides](https://github.com/stanford-cs336/spring2025-lectures/blob/e9cb2488fdb53ea37f0e38924ec3a1701925cef3/nonexecutable/2025%20Lecture%203%20-%20architecture.pdf) 中 normalization、residual、FFN 和位置表示。
+## Objective
 
-先画一层 Pre-LN block 的数据流，说明 residual 加法两侧为什么必须有相同 shape。
+组装 Pre-LN residual block 和 TinyGPT：token/position embedding → causal blocks → final norm → vocab head。
 
-## 任务
+## Start Here
 
-1. token embedding + learned absolute positional embedding。
-2. Pre-LN → causal MHA → residual；Pre-LN → GELU FFN → residual。
-3. 堆叠 blocks，再接 final LayerNorm 和 vocabulary head，输出 `(B,T,V)`。
-4. 用配置控制 `layers/heads/d_model/context_length`，校验维度整除与位置长度。
-5. 保持 LayerNorm、位置编码、FFN 接口清楚，便于第五课替换其中一项。
+按 [slides](slides.md)：先画[数据流](slides.md#intuition)，再做[Block/模型 TODO](slides.md#implementation)，然后跑[过拟合与因果实验](slides.md#training)，最后选读[参数与 LayerNorm 公式](slides.md#derivations)。
 
-## 校验与提交
+## Student File
 
-- LayerNorm 与 PyTorch 对齐；固定 seed 重建参数一致。
-- 参数计数手算与代码一致；梯度到达 embedding、所有 blocks 和输出层。
-- 完整模型保持因果性；长度 1、batch size 1 都不丢维度。
-- 关闭 dropout，在一个固定小 batch 上过拟合到明显低于初始 `log(V)`，排除断图或错误标签。
-- 提交模型、检查和本目录 `notes.md` 中的结构图。进度见 [schedule](../schedule.md)；本目录当前提供规格。
+`lab03_transformer_block.py`
+
+1. `TransformerBlock.forward`
+2. `TinyGPT.forward`
+3. 已提供 `TransformerConfig` 和 `count_parameters`，先读契约再使用。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 03-transformer/03-transformer-block/check_lab03_transformer_block.py -k block
+uv run pytest -q 03-transformer/03-transformer-block/check_lab03_transformer_block.py -k model_logits
+uv run pytest -q 03-transformer/03-transformer-block/check_lab03_transformer_block.py -k causal
+uv run pytest -q 03-transformer/03-transformer-block/check_lab03_transformer_block.py
+```
+
+## Definition of Done
+
+- [ ] 固定 seed 重建参数一致，参数计数能手算对账。
+- [ ] 梯度到达 embeddings、所有 blocks 和 head。
+- [ ] 完整模型保持因果性，B=1/T=1 不丢维。
+- [ ] 固定小 batch 能过拟合到明显低于初始 `log(V)`。
+- [ ] notes 有结构图、shape、参数表和过拟合曲线。

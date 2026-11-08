@@ -1,13 +1,34 @@
 # Lab 01 · 测出性能基线
 
-阅读：[CS336 L2：Resource accounting](https://cs336.stanford.edu/spring2025-lectures/?trace=var/traces/lecture_02.json)、[GPU slides](https://github.com/stanford-cs336/spring2025-lectures/blob/main/nonexecutable/2025%20Lecture%205%20-%20GPUs.pdf)。
+## Objective
 
-## 任务与验收
+复用第三课模型，把参数/梯度/优化器/激活/attention scores 的内存拆开，并把 forward/backward/optimizer 时间拆开。
 
-1. 复用第三课模型，手算参数、梯度、优化器状态和 attention score 的数量及字节数。
-2. 固定配置，区分数据加载、forward、backward、optimizer 的耗时。加速设备计时前后同步，先 warmup，再测多次。
-3. 改变 context length 至少三档，画耗时与内存趋势；结合复杂度解释。
-4. 分开报告 CPU/RAM、CUDA 显存、MPS 可获得的统计，未能测量的项标记不可用。
-5. 本目录 `notes.md` 保存配置、计时边界、median 与离散程度、profile 结果和首要瓶颈假设。
+## Start Here
 
-通过条件：另一进程能按记录重跑；知道最大的时间/内存来源，并能解释测量误差。状态见 [schedule](../schedule.md)；当前为实验规格。
+按 [slides](slides.md)：先明确[要测什么](slides.md#intuition)，再完成[三个测量工具](slides.md#implementation)，随后跑[固定协议与 context 趋势](slides.md#training)，最后选读[资源公式](slides.md#derivations)。
+
+## Student File
+
+`lab01_profiling.py`
+
+1. `estimate_training_memory`
+2. `benchmark_call`
+3. `profile_training_step`
+
+## Staged Checks
+
+```bash
+uv run pytest -q 04-training-systems/01-profiling/check_lab01_profiling.py -k memory
+uv run pytest -q 04-training-systems/01-profiling/check_lab01_profiling.py -k benchmark
+uv run pytest -q 04-training-systems/01-profiling/check_lab01_profiling.py -k training_profile
+uv run pytest -q 04-training-systems/01-profiling/check_lab01_profiling.py
+```
+
+## Definition of Done
+
+- [ ] 手算和代码估算一致，单位为 bytes，假设写清。
+- [ ] warmup、重复次数、同步、median/离散程度完整。
+- [ ] context 至少三档，耗时与内存趋势有图。
+- [ ] CPU/RAM、CUDA、MPS 不可获得的项目标不可用，不猜数。
+- [ ] notes 能支持另一进程重跑，并给出首要瓶颈假设。

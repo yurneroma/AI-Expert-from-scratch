@@ -1,20 +1,34 @@
 # Lab 04 · 复现报告与答辩
 
-阅读：本课程的假设、代码差异、检查结果和实验日志，不另加新论文。
+## Objective
 
-## 结课产物
+把本课程的假设、代码差异、检查和原始日志整理成有证据边界的报告，并能从干净进程恢复、验证和生成。不另加新论文或新组件。
 
-在本目录提交 `notes.md` 作为报告，内容只需覆盖：
+## Start Here
 
-1. 问题与假设：具体修改哪个模块、为什么。
-2. 实现证据：公式、代码入口、shape、数值与梯度校验。
-3. 实验协议：数据、tokenizer、配置、seed、硬件和预算。
-4. 结果：逐次测量、汇总、曲线和负结果。
-5. 解释与局限：哪些观察支持假设、哪些仍不确定、下一步最值得验证什么。
-6. 复现命令：从干净进程加载 checkpoint，验证和生成；记录对应 commit。
+按 [slides](slides.md)：先做[证据清点](slides.md#intuition)，再完成[报告/复现检查工具](slides.md#implementation)，随后执行[干净进程验收与答辩](slides.md#training)，最后检查[结论边界](slides.md#derivations)。
 
-## 现场验收
+## Student File
 
-不看笔记讲 15 分钟：逐层解释模型；切换 baseline/variant；运行关键正确性检查；解释一次性能测量和一张训练曲线。可以回答“为什么没有提升”，但必须有证据。
+`lab04_report.py`
 
-报告可以整理成博客或可供代码审查的变更说明；公开发布由你决定。更新 [schedule](../schedule.md) 后结束本轮。
+1. `validate_report_markdown`
+2. `validate_reproduction_metadata`
+
+`notes.md` 就是报告模板；工具检查结构完整性，不代替你判断证据是否充分。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 05-architecture-lab/04-report/check_lab04_report.py -k complete_report
+uv run pytest -q 05-architecture-lab/04-report/check_lab04_report.py -k reproduction_metadata
+uv run pytest -q 05-architecture-lab/04-report/check_lab04_report.py
+```
+
+## Definition of Done
+
+- [ ] 问题、实现、协议、结果、局限和复现命令完整。
+- [ ] 每个主要结论链接到逐次数据、曲线或检查。
+- [ ] 干净进程可加载 checkpoint、验证和生成，commit 真实。
+- [ ] 能现场切换 baseline/variant、运行关键检查并解释负结果。
+- [ ] 博客或公开发布可选，不作为结课前置。

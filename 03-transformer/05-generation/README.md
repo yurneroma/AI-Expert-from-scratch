@@ -1,19 +1,34 @@
 # Lab 05 · 自回归生成
 
-阅读：[CS336 L10：Inference](https://cs336.stanford.edu/spring2025-lectures/?trace=var/traces/lecture_10.json)，先看自回归生成、prefill/decode 和采样概念；缓存实现留到下一课程。
+## Objective
 
-## 任务
+复用训练好的模型，完成 greedy、temperature/top-k、EOS、最大长度和 context 边界清楚的生成入口。KV cache 留到下一课程。
 
-1. 完整前缀 forward 后取最后位置 logits，支持 greedy 与 temperature/top-k sampling。
-2. 检查 temperature、top-k 和最大长度；支持 EOS；采样使用显式随机种子。
-3. 使用 eval/no_grad，明确超出最大 context 时如何截断和重置绝对位置。
-4. 输入 prompt → 编码 → 生成 → 解码输出，CLI 接收 checkpoint 与生成参数。
+## Start Here
 
-## 校验与提交
+按 [slides](slides.md)：先理解[完整前缀如何一步步变长](slides.md#intuition)，再完成[采样与生成 TODO](slides.md#implementation)，然后做[同 prompt 对照](slides.md#training)，最后选读[采样分布公式](slides.md#derivations)。
 
-- 固定模型、prompt、seed、配置得到相同结果；top-k=1 与 greedy 一致。
-- EOS 停止、最大长度、空 prompt 的约定均可验证；不越过位置表索引。
-- 生成不改变模型参数，退出后恢复原来的 train/eval 状态。
-- 本目录 `notes.md` 保存三组相同 prompt 不同 temperature 的输出，并解释采样变化与模型质量的区别。
+## Student File
 
-状态见 [schedule](../schedule.md)。当前为作业规格。
+`lab05_generation.py`
+
+1. `sample_next_token`
+2. `generate`
+
+`generate` 返回 prompt+continuation；空 prompt 必须显式传 `bos_id`。超长时使用最后 `context_length` 个 token，并在 notes 说明绝对位置窗口重置的影响。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 03-transformer/05-generation/check_lab05_generation.py -k top_k
+uv run pytest -q 03-transformer/05-generation/check_lab05_generation.py -k generate_eos
+uv run pytest -q 03-transformer/05-generation/check_lab05_generation.py -k empty_prompt
+uv run pytest -q 03-transformer/05-generation/check_lab05_generation.py
+```
+
+## Definition of Done
+
+- [ ] top-k=1 与 greedy 一致，同 seed/config 可复现。
+- [ ] EOS、最大长度、空 prompt、context 截断均有明确行为。
+- [ ] 生成不改参数，退出恢复原 train/eval 状态。
+- [ ] notes 保存同 prompt 三组 temperature 输出，并区分采样变化与模型质量。

@@ -1,17 +1,34 @@
 # Lab 03 · 受控消融
 
-阅读：[CS336 L12：Evaluation](https://cs336.stanford.edu/spring2025-lectures/?trace=var/traces/lecture_12.json)；回看自己的实验假设。
+## Objective
 
-## 任务
+用相同数据、tokenizer、训练 token 预算和优化规则，对 baseline/variant 跑至少三个配对 seed，同时报告 dev NLL、速度和内存。
 
-1. baseline 与 variant 使用相同数据、tokenizer、训练 token 数、有效 batch、优化器、LR 规则和评价频率。
-2. 使用至少三个配对 seed，记录每次运行的完整配置。涉及容量变化时配平参数量或计算量，不能同时配平时说明选择。
-3. 同时报告 dev NLL、训练 tokens/s、推理耗时和内存。速度优化先做微基准，再看端到端影响。
-4. 算力有限时缩小两边模型或 token 预算；先按一次短跑估算实验矩阵总成本。
-5. 只有配置确定后才做 final test evaluation；任何额外调参都要给 baseline 相近预算。
+## Start Here
 
-## 提交
+按 [slides](slides.md)：先列出[控制变量](slides.md#intuition)，再完成[配对检查与汇总](slides.md#implementation)，随后估算并运行[实验矩阵](slides.md#training)，最后选读[统计解释边界](slides.md#derivations)。
 
-本目录 `notes.md` 包含逐 seed 结果表、均值/标准差、loss 曲线、计时协议、总计算预算和一段解释。三个 seed 只能反映有限波动，不把微小差异写成普遍优势；负结果保留。
+## Student File
 
-状态见 [schedule](../schedule.md)。当前为实验规格。
+`lab03_ablation.py`
+
+1. `validate_paired_runs`
+2. `summarize_runs`
+
+每次运行保存完整 config 和 metrics；汇总函数只负责计算，不会把微小差异自动写成“显著提升”。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 05-architecture-lab/03-ablation/check_lab03_ablation.py -k paired_seeds
+uv run pytest -q 05-architecture-lab/03-ablation/check_lab03_ablation.py -k summary
+uv run pytest -q 05-architecture-lab/03-ablation/check_lab03_ablation.py
+```
+
+## Definition of Done
+
+- [ ] baseline/variant 至少三个配对 seed，共享字段经检查。
+- [ ] 容量变化有配平或明确披露，预算不足时两边一起缩小。
+- [ ] 逐 seed 原始结果、均值、样本标准差和曲线完整。
+- [ ] 微基准与端到端速度分开，内存和总计算预算有记录。
+- [ ] 配置确定后才 final test；负结果保留。

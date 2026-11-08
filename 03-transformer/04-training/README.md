@@ -1,19 +1,38 @@
 # Lab 04 · 训练与验证
 
-阅读：[CS336 A1 handout](https://github.com/stanford-cs336/assignment1-basics) 中 optimizer、learning rate schedule、checkpoint 与实验部分。先解释 token-mean loss、weight decay 和梯度裁剪的区别。
+## Objective
 
-## 任务
+把 TinyGPT 接进可检查的训练闭环：warmup+cosine、AdamW、梯度裁剪、token-weighted dev NLL、配置与曲线。
 
-1. 先用 PyTorch AdamW 跑通训练闭环，再在小 tensor 上实现 AdamW 更新并与参考对齐。
-2. warmup + cosine decay，裁剪梯度，记录 step、已见 tokens、train/dev NLL、learning rate。
-3. 固定数据 split 与 tokenizer；验证采用 eval/no_grad，按有效 token 数加权，单独保留 test。
-4. 先跑一次 50-step smoke run，再按吞吐估算有限训练预算，保存配置、曲线和 checkpoint。
-5. 对比一次学习率或模型宽度；训练不稳定时先检查 token 移位、mask 和尺度。
+## Start Here
 
-## 校验与提交
+按 [slides](slides.md)：先看懂[训练每一步在改什么](slides.md#intuition)，再完成[四个独立工具](slides.md#implementation)，然后做[50-step smoke run 与对照](slides.md#training)，最后选读[AdamW 推导](slides.md#derivations)。
 
-- 手写 AdamW 的多步更新与参考一致，LR 在 warmup 边界与末步正确。
-- 每个 step 梯度更新有限；验证不修改模型参数或优化器状态。
-- loss 汇总按有效 token 数加权，改变 evaluation batch size 不应改变 NLL。
-- 保存相同数据/配置下可复现的下降曲线，报告 train/dev gap 和固定种子的生成样本。
-- 提交实现、检查、配置和本目录 `notes.md` 中的执行命令。状态见 [schedule](../schedule.md)；代码与检查待开课补齐。
+## Student File
+
+`lab04_training.py`
+
+1. `learning_rate_at_step`
+2. `ManualAdamW`
+3. `weighted_token_nll`
+4. `evaluate_token_nll`
+
+完整训练循环复用 Lab 01–03 的 tokenizer、batch 和 TinyGPT，不另建模型。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 03-transformer/04-training/check_lab04_training.py -k learning_rate
+uv run pytest -q 03-transformer/04-training/check_lab04_training.py -k adamw
+uv run pytest -q 03-transformer/04-training/check_lab04_training.py -k weighted
+uv run pytest -q 03-transformer/04-training/check_lab04_training.py -k evaluation
+uv run pytest -q 03-transformer/04-training/check_lab04_training.py
+```
+
+## Definition of Done
+
+- [ ] AdamW 多步更新与 PyTorch 对齐，LR 边界正确。
+- [ ] 验证 eval/no_grad，不改参数，并按有效 token 加权。
+- [ ] 改变 evaluation batch size 不改变 NLL。
+- [ ] 50-step smoke run 后，再按吞吐安排训练预算。
+- [ ] notes 保存配置、命令、train/dev 曲线和一次学习率或宽度对照。

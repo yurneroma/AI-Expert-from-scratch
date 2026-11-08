@@ -1,12 +1,31 @@
 # Lab 01 · 建立架构基线
 
-阅读：[CS336 架构 slides](https://github.com/stanford-cs336/spring2025-lectures/blob/e9cb2488fdb53ea37f0e38924ec3a1701925cef3/nonexecutable/2025%20Lecture%203%20-%20architecture.pdf)；第三课训练实现、checkpoint 和第四课性能报告。
+## Objective
 
-## 任务与验收
+冻结第三课模型、tokenizer、数据、token 预算和评价方式，形成可重跑 baseline，并提出一个可证伪的组件假设。默认后续只改 LayerNorm → RMSNorm。
 
-1. 画出一次 forward，标明 embedding、positions、norm、attention、FFN 和 head 的代码位置及 shape。
-2. 冻结 baseline 的代码版本、tokenizer、数据划分、训练 token 预算和 evaluation 方式。
-3. 用新的进程复现 baseline 的 logits、恢复训练与验证结果，确认测量工具可以复用。
-4. 选择一个主问题：默认将 LayerNorm 换为 RMSNorm。记录预期效果、机制、可能副作用及反证条件。
+## Start Here
 
-本目录 `notes.md` 保存基线表和一段实验假设。后续 Lab 复用原模型并通过配置开关切换组件。状态见 [schedule](../schedule.md)。
+按 [slides](slides.md)：先画[模块与证据地图](slides.md#intuition)，再完成[manifest 工具](slides.md#implementation)，随后做[干净进程复现](slides.md#training)，最后整理[假设与反证条件](slides.md#derivations)。
+
+## Student File
+
+`lab01_baseline.py`
+
+1. `validate_baseline_manifest`
+2. `comparison_mismatches`
+
+## Staged Checks
+
+```bash
+uv run pytest -q 05-architecture-lab/01-baseline/check_lab01_baseline.py -k complete_manifest
+uv run pytest -q 05-architecture-lab/01-baseline/check_lab01_baseline.py -k comparison
+uv run pytest -q 05-architecture-lab/01-baseline/check_lab01_baseline.py
+```
+
+## Definition of Done
+
+- [ ] forward 图标明 embedding/positions/norm/attention/FFN/head 的代码和 shape。
+- [ ] baseline commit、tokenizer、split、token 预算和 evaluation 冻结。
+- [ ] 新进程复现 logits、恢复训练和验证结果。
+- [ ] notes 写一个机制、预期效果、副作用和反证条件明确的假设。

@@ -1,17 +1,36 @@
 # Lab 02 · 梯度累积与精度对照
 
-阅读：[CS336 A2](https://github.com/stanford-cs336/assignment2-systems) 的 handout 中性能测量与精度相关部分。具体 PyTorch API 以运行环境对应文档为准。
+## Objective
 
-## 必修路径
+先证明 FP32 梯度累积与一次有效大 batch 对齐，再比较 microbatch/accumulation 的吞吐和内存；设备支持时扩展混合精度。
 
-1. FP32 下实现梯度累积：按有效 token 数缩放 microbatch loss；一次大 batch 与多次累积比较梯度及一次 optimizer 更新。
-2. accumulation 边界后才做 clip、step、zero_grad；验证尾部不足一组 microbatch 的处理。
-3. 固定有效 batch，比较不同 microbatch/accumulation 配置的吞吐与内存。
+## Start Here
 
-## 设备支持时扩展
+按 [slides](slides.md)：先看懂[为什么平均方式会改变梯度](slides.md#intuition)，再完成[三个小工具](slides.md#implementation)，然后做[大 batch 对齐与效率实验](slides.md#training)，最后选读[缩放公式](slides.md#derivations)。
 
-使用 autocast 做混合精度对照，记录设备支持的 dtype、loss/梯度有限性与误差；需要时使用 loss scaling。可再测编译或 fused attention，分别记录编译时间和稳态耗时。
+## Student File
 
-通过条件：关闭 dropout 的确定性小模型在 FP32 下更新对齐；报告清楚任何精度变化和硬件限制。优化没变快也要保留结果与原因。
+`lab02_training_efficiency.py`
 
-提交实现、检查和本目录 `notes.md`。状态见 [schedule](../schedule.md)；当前为规格。
+1. `microbatch_loss_weights`
+2. `accumulate_microbatch_losses`
+3. `accumulation_step_boundaries`
+
+`accumulate_microbatch_losses` 只 backward 累加，不负责 zero/step；完整训练在边界处再 clip、step、zero。
+
+## Staged Checks
+
+```bash
+uv run pytest -q 04-training-systems/02-training-efficiency/check_lab02_training_efficiency.py -k loss_weights
+uv run pytest -q 04-training-systems/02-training-efficiency/check_lab02_training_efficiency.py -k accumulated_gradient
+uv run pytest -q 04-training-systems/02-training-efficiency/check_lab02_training_efficiency.py -k boundaries
+uv run pytest -q 04-training-systems/02-training-efficiency/check_lab02_training_efficiency.py
+```
+
+## Definition of Done
+
+- [ ] 不同 token 数的 microbatch 按有效 token 缩放。
+- [ ] 尾部不足一组也正确 step；边界外不提前 clip/step。
+- [ ] 固定有效 batch，比较不同配置的吞吐与内存。
+- [ ] 混合精度不支持时记录限制，FP32 正确性仍完成。
+- [ ] notes 保留误差、负结果和硬件条件。
