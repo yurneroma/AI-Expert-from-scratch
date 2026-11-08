@@ -8,12 +8,14 @@
 
 ## Before Coding
 
-阅读 [slides.md](slides.md)，回答：
+按 [自学讲义](slides.md)（[浏览器版](slides.html)）边读边做：
 
-1. 训练时 mean/variance 由哪些维度统计？
-2. `gamma` 和 `beta` 为什么让网络可以撤销归一化？
-3. 为什么 eval 时不能继续使用当前 batch 统计量？
-4. Linear 紧接 BatchNorm 时，Linear bias 为什么通常是冗余的？
+1. 先读[直觉](slides.md#intuition)，分清 batch statistics、running statistics 和 gamma/beta。
+2. 进入[实现](slides.md#implementation)，完成 TODO 1–4，分别通过 training/eval/3-D/MLP 检查。
+3. 进入[训练对照](slides.md#training)，比较有/无 BN，而不是只证明归一化公式能运行。
+4. 实验后再看[公式与解释](slides.md#derivations)。
+
+在 `notes.md` 先记录统计轴和 train/eval 预测；gamma/beta 与 bias 冗余的推导不是开始 TODO 的前置条件。
 
 ## Student File
 

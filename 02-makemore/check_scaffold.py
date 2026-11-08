@@ -25,7 +25,9 @@ LABS = {
 def test_required_course_material_exists():
   expected = [
     "schedule.md",
-    *[f"{lab}/{name}" for lab in LABS for name in ["README.md", "slides.md", "notes.md"]],
+    "01-bigram/self-study.md",
+    *[f"{lab}/{name}" for lab in LABS for name in ["README.md", "notes.md"]],
+    *[f"{lab}/slides.md" for lab in LABS if lab != "01-bigram"],
     "07-capstone/README.md",
     "07-capstone/notes.md",
   ]

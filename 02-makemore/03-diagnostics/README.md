@@ -6,12 +6,14 @@
 
 ## Before Coding
 
-阅读 [slides.md](slides.md)，然后预测：
+按 [自学讲义](slides.md)（[浏览器版](slides.html)）分阶段进行，不需要先读推导：
 
-1. 初始 logits 绝对值很大时，初始 cross entropy 为什么高于 `log(V)`？
-2. tanh 输入绝对值过大时，哪个导数项接近 0？
-3. `std = gain / sqrt(fan_in)` 想保持什么量级？
-4. update/data ratio 过小和过大分别意味着什么？
+1. 先读[诊断直觉](slides.md#intuition)，理解 logits、激活、梯度和更新分别回答什么。
+2. 进入[实现诊断工具](slides.md#implementation)，依次完成 TODO 1–6 和对应检查。
+3. 进入[受控实验](slides.md#training)，先预测三组初始化，再用同一 seed 测量。
+4. 实验后按需阅读[公式推导](slides.md#derivations)。
+
+先在 `notes.md` 写预测，再记录测量结果；不要先扫超参数，也不要求读懂方差证明后才开始 TODO 1。
 
 ## Student File
 

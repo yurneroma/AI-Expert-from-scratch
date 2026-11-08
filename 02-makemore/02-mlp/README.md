@@ -10,12 +10,14 @@ indices -> embeddings -> concatenate -> Linear -> tanh -> Linear -> logits
 
 ## Before Coding
 
-阅读 [slides.md](slides.md)，在 `notes.md` 写出：
+不需要先通读 [自学讲义](slides.md)（[浏览器版](slides.html)），按阶段边读边做：
 
-1. batch size 为 `B`、context 长度为 `T`、embedding 维度为 `C` 时，embedding 查表后的 shape。
-2. 为什么 train/dev/test 要按单词分割，不能按展开后的字符样本随机分？
-3. 为什么 embedding lookup 也能接收梯度？
-4. 为什么不应该根据 test loss 反复调参？
+1. 先读[直觉](slides.md#intuition)，手画一个名字的滑动 context。
+2. 进入[实现](slides.md#implementation)，依次完成 TODO 1–4 和对应检查。
+3. 进入[训练与实验](slides.md#training)，完成 TODO 5–6，再比较 context 和容量。
+4. 实验后按需阅读[公式与解释](slides.md#derivations)，不作为写代码的前置条件。
+
+在 `notes.md` 分阶段记录 word split 的理由、forward shape 和 train/dev 预测，不要等到全部理论读完才动手。
 
 ## Student File
 

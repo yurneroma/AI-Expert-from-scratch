@@ -17,12 +17,14 @@
 
 ## Before Coding
 
-阅读 [slides.md](slides.md)，回答：
+按 [自学讲义](slides.md)（[浏览器版](slides.html)）边读边做：
 
-1. context 长度 8、group size 2 需要多少个层次？
-2. `(B, T, C)` 通过 `FlattenConsecutive(2)` 后的 shape 是什么？
-3. 为什么 hierarchical model 比一次 flatten 拥有更强的归纳偏置？
-4. 参数量和 receptive field 不是同一件事，为什么？
+1. 先读[直觉](slides.md#intuition)，手画 8 个字符如何逐层合并。
+2. 进入[实现](slides.md#implementation)，依次完成 flatten、block、model 和采样检查。
+3. 进入[训练与公平比较](slides.md#training)，同时记录参数量、context、dev NLL 和吞吐。
+4. 实验后再看[公式与设计解释](slides.md#derivations)。
+
+先在 `notes.md` 写 shape 和预测；receptive field 与层级数公式不是开始 TODO 的前置条件。
 
 ## Student File
 

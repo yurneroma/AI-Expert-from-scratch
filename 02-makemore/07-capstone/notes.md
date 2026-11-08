@@ -2,6 +2,14 @@
 
 必修小结只填写 Bigram、MLP 和训练诊断结果；选修项未做则标记未做。
 
+## Result Inventory
+
+| Source lab | Run command | Artifact | Split / seed | Comparable? |
+|---|---|---|---|---|
+| | | | | |
+
+先收齐并核对口径，再填写下面的对比表。
+
 ## Environment
 
 - commit:

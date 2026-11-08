@@ -1,11 +1,17 @@
 # Lab 05 Notes - Manual Backprop
 
-## Pre-lab Derivations
+## Forward Map
 
-- mean:
-- broadcast addition:
-- embedding lookup:
-- softmax + cross entropy:
+- 计算图与缓存：
+- 多路径张量：
+- 第一段落要核对的中间梯度：
+
+## Implementation Rules
+
+- mean 的反向规则：
+- broadcast addition 的 reduction：
+- embedding lookup 的重复 index 累加：
+- softmax + cross entropy 的合并规则：
 
 ## Backward Shape Ledger
 

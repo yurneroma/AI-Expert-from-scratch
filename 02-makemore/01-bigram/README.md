@@ -11,14 +11,14 @@
 
 ## Before Coding
 
-第一次学习先阅读 [Bigram 自学讲义](self-study.md)（[浏览器阅读版](self-study.html)）。讲义包含建模背景、贯穿手算例子、公式推导、自测与可运行核对实验；按第 16 节的对应关系逐步进入下面的 TODO。[slides.md](slides.md) 用于学完后的复习。
+第一次学习**不需要通读讲义，更不需要先读懂公式**。打开 [Bigram 自学讲义](self-study.md)（[浏览器阅读版](self-study.html)），按下面的顺序边读边做：
 
-读完讲义第一阶段后，在 `notes.md` 回答：
+1. 只读[第一阶段：直觉](self-study.md#intuition)，理解“看当前字符，预测下一个字符”和边界 `.`。
+2. 进入[第二阶段：计数模型](self-study.md#count-model)，每读完一小节就完成对应 TODO 1–5，并运行下方分阶段检查。
+3. 进入[第三阶段：神经模型与训练](self-study.md#neural-model)，完成 TODO 6–7，确认 loss 下降后跑完整实验。
+4. 代码和训练完成后，再按兴趣阅读[第四阶段：公式推导](self-study.md#derivations)。这部分不是开始写代码的前置条件。
 
-1. 为什么必须把起始和结束事件放进训练数据？
-2. 字符均匀分布的平均 NLL 是多少？
-3. add-one smoothing 在没见过的 bigram 上解决了什么问题？
-4. 计数表与神经网络权重矩阵的行和列各代表什么？
+在 `notes.md` 分阶段记录：第一阶段解释边界和 bigram 的局限；计数阶段预测 uniform NLL、解释 smoothing；神经阶段记录权重矩阵的行列语义。不要等所有公式都看懂才动手。
 
 ## Student File
 

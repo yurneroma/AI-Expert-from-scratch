@@ -1,10 +1,15 @@
 # Lab 03 Notes - Diagnostics
 
-## Pre-lab
+## Intuition
 
-1. initial loss 与 `log(V)`:
-2. tanh 饱和的导数：
-3. fan-in scaling 的目标：
+1. 为什么 loss 下降仍可能不健康：
+2. logits、激活、梯度、更新分别回答什么：
+
+## Tool Checkpoints
+
+1. 初始 loss 的均匀基线：
+2. tanh 饱和比例怎样计算：
+3. fan-in scaling 的使用规则：
 4. update/data ratio 的含义：
 
 ## Predictions

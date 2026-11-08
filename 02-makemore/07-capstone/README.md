@@ -2,10 +2,15 @@
 
 ## Objective
 
-用约 2 小时整理必修 Lab 01-03 的结果，形成进入 Transformer 前的课程小结。
-选修 Lab 04-06 的结果有则补充，不需要为填表额外完成所有选修。
+用约 2 小时整理必修 Lab 01-03 的结果，形成进入 Transformer 前的课程小结。选修 Lab 04-06 的结果有则补充，不需要为填表额外完成所有选修。
 
-## Required Comparison
+这一步不再学新公式，重点是：**收齐证据 → 公平比较 → 只改一个变量 → 检查能否复现 → 口头讲清。**
+
+## 1. 先收齐已有结果
+
+先填 `notes.md` 的结果清单：每个模型来自哪个 Lab、运行命令、artifact、数据 split 和 seed。缺少统一 split 或评估口径的结果不要直接并排比较，先重跑或明确标注不可比。
+
+## 2. Required Comparison
 
 使用同一份 train/dev/test split 和固定 evaluation 脚本：
 
@@ -17,7 +22,9 @@
 | MLP + BatchNorm（选修） | | | | | |
 | Hierarchical model（选修） | | | | | |
 
-## Required Ablation
+先记录，再下结论。train/dev/test 必须回答不同问题；不要用 test 反复选择模型。
+
+## 3. Required Ablation
 
 复用 Lab 02 或 03 的一组实验，只改变一个因素：
 
@@ -28,9 +35,9 @@
 - BatchNorm on/off
 - hierarchical grouping depth
 
-至少运行 3 个设置，不允许只报告最好结果。
+至少运行 3 个设置，不允许只报告最好结果。先在 `notes.md` 写控制变量和预测，再填结果与另一种可能解释。
 
-## Reproducibility Contract
+## 4. Reproducibility Contract
 
 报告必须包含：
 
@@ -43,7 +50,7 @@
 - optimizer、learning rate、batch size、steps
 - 主要图表的生成命令
 
-## Oral Check
+## 5. Oral Check
 
 不看笔记，用 10 分钟讲清前 3 题；后三题在完成相关选修后回答：
 

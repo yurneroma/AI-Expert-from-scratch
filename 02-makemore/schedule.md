@@ -4,15 +4,17 @@
 
 预算：W1-2（2026-09-08 至 09-21），约 32 小时任务 + 8 小时缓冲。每次按本表选一个 Lab，在该目录内完成阅读、实现、校验和记录。只更新本表状态和完成日期。
 
+所有讲义统一采用“直觉 → 实现 → 训练/实验 → 公式推导”的顺序。不要先通读公式；每完成一个 TODO 就运行对应检查，推导可在实验后选读。
+
 | 周 / 预算 | Lab | 阅读 | 验收产出 | 状态 / 完成日期 |
 |---|---|---|---|---|
-| W1 · 10h | [01 · Bigram](01-bigram/README.md) | [自学讲义](01-bigram/self-study.md) · [复习 slides](01-bigram/slides.md) | 边界 token、计数/神经 bigram、NLL 与采样；8 项检查 | 下一步 / — |
-| W1-2 · 12h | [02 · Context MLP](02-mlp/README.md) | [slides](02-mlp/slides.md) | word split、embedding、训练/验证与采样；7 项检查 | 待做 / — |
-| W2 · 8h | [03 · 训练诊断](03-diagnostics/README.md) | [slides](03-diagnostics/slides.md) | 初始化对照、饱和比例、梯度和更新统计；6 项检查 | 待做 / — |
+| W1 · 10h | [01 · Bigram](01-bigram/README.md) | [自学讲义](01-bigram/self-study.md) | 边界 token、计数/神经 bigram、NLL 与采样；8 项检查 | 下一步 / — |
+| W1-2 · 12h | [02 · Context MLP](02-mlp/README.md) | [自学讲义](02-mlp/slides.md) | word split、embedding、训练/验证与采样；7 项检查 | 待做 / — |
+| W2 · 8h | [03 · 训练诊断](03-diagnostics/README.md) | [自学讲义](03-diagnostics/slides.md) | 初始化对照、饱和比例、梯度和更新统计；6 项检查 | 待做 / — |
 | W2 · 2h | [07 · 结课小结](07-capstone/README.md) | 回看 Lab 01-03 的图和 notes | 同一 split 下的 Bigram/MLP 对照表；口头解释训练闭环 | 待做 / — |
-| 选修 · 6-8h | [04 · BatchNorm](04-batchnorm/README.md) | [slides](04-batchnorm/slides.md) | train/eval 和 running statistics；6 项检查 | 选修 / — |
-| 选修 · 8-12h | [05 · Tensor Backprop](05-backprop/README.md) | [slides](05-backprop/slides.md) | 完整 tensor 梯度与 autograd 对齐；4 项检查 | 选修 / — |
-| 选修 · 8-12h | [06 · WaveNet](06-wavenet/README.md) | [slides](06-wavenet/slides.md) | 层级 receptive field；依赖 Lab 04；6 项检查 | 选修 / — |
+| 选修 · 6-8h | [04 · BatchNorm](04-batchnorm/README.md) | [自学讲义](04-batchnorm/slides.md) | train/eval 和 running statistics；6 项检查 | 选修 / — |
+| 选修 · 8-12h | [05 · Tensor Backprop](05-backprop/README.md) | [自学讲义](05-backprop/slides.md) | 完整 tensor 梯度与 autograd 对齐；4 项检查 | 选修 / — |
+| 选修 · 8-12h | [06 · WaveNet](06-wavenet/README.md) | [自学讲义](06-wavenet/slides.md) | 层级 receptive field；依赖 Lab 04；6 项检查 | 选修 / — |
 
 选修保留原编号，方便回看既有练习。Lab 03 后只需额外口头推导 `softmax + CE`、一次 affine backward 和 embedding 重复 index 的梯度累加；完整 BN backward 可以延后。
 

@@ -1,11 +1,17 @@
 # Lab 06 Notes - Hierarchical Model
 
-## Pre-lab
+## Intuition
 
-1. block size 8 的层级数：
-2. FlattenConsecutive shape:
-3. hierarchical inductive bias:
-4. parameters vs receptive field:
+1. 8 个字符怎样逐层合并：
+2. 同一层共享哪些变换：
+3. 与完整 WaveNet 的区别：
+
+## Implementation Checkpoints
+
+1. FlattenConsecutive shape:
+2. 每层 Linear 的输入宽度：
+3. 为什么不能用 unrestricted squeeze：
+4. 采样前后 train/eval 状态：
 
 ## Shape Ledger
 

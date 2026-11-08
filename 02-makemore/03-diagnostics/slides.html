@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>初始化与训练诊断自学讲义</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">初始化与训练诊断自学讲义</h1>
+<p class="subtitle">先测量，再判断训练为什么有问题</p>
+</header>
+<h1 id="这堂课">这堂课</h1>
+<p>上一课让 MLP 跑通了。本课不再只问“loss
+有没有下降”，而是问：<strong>初始预测、隐藏激活、梯度和参数更新的尺度是否健康？</strong></p>
+<p>第一次学习先建立诊断直觉，再实现六个小工具，最后做受控初始化实验。公式推导放在实验之后。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>阶段</th>
+<th>要做什么</th>
+<th>完成标志</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#intuition">第一阶段：直觉</a></td>
+<td>看懂 loss 曲线之外的三类信号</td>
+<td>能提出一个可检验的故障假设</td>
+</tr>
+<tr>
+<td><a href="#implementation">第二阶段：实现诊断工具</a></td>
+<td>完成 TODO 1–6</td>
+<td>统计、梯度和绘图 checks 通过</td>
+</tr>
+<tr>
+<td><a href="#training">第三阶段：受控实验</a></td>
+<td>比较三组初始化</td>
+<td>只改变初始化，能用分布和比率解释结果</td>
+</tr>
+<tr>
+<td><a href="#derivations">第四阶段：公式推导</a></td>
+<td>实验后选读</td>
+<td>能解释 <code>log(V)</code>、tanh 饱和和 fan-in scaling</td>
+</tr>
+</tbody>
+</table>
+<h1 id="intuition">第一阶段 · loss 下降不一定代表健康</h1>
+<h2 id="一个可疑的开头">1. 一个可疑的开头</h2>
+<p>对 <code>V</code> 个字符，如果初始 logits 都接近 0，softmax
+接近均匀，初始 cross entropy 应接近 <code>log(V)</code>。</p>
+<p>如果输出层随机权重太大，模型会在没有任何依据时非常自信。真实字符可能只拿到很小概率，初始
+loss 就远高于
+<code>log(V)</code>。训练最初一段时间只是在撤销这种任意自信，而不是学习语言规律。</p>
+<p>所以看到异常初始 loss，先检查输出 logits，不要立刻扫学习率。</p>
+<h2 id="中间层可能卡住">2. 中间层可能“卡住”</h2>
+<p>隐藏层使用 tanh。当输出接近 <code>-1</code> 或 <code>1</code>
+时，曲线已经变平，梯度接近 0。即使总 loss
+还在缓慢下降，大量隐藏单元也可能已经饱和，后续学习会很慢。</p>
+<p>一个 loss 标量无法区分：</p>
+<ul>
+<li>大部分激活健康，只有少量离群值；</li>
+<li>整层激活都接近饱和；</li>
+<li>激活全部接近 0，几乎没有有效信号。</li>
+</ul>
+<p>因此要看分布、直方图和饱和比例。</p>
+<h2 id="梯度大不代表更新相对参数一定大">3.
+梯度大，不代表更新相对参数一定大</h2>
+<p>SGD 更新由 <code>learning_rate * gradient</code>
+决定。参数本身很大时，同样的梯度可能只带来很小的相对改变；参数很小时，同样更新可能把结构冲坏。</p>
+<p>本课因此分别测量：</p>
+<pre class="text"><code>forward：logits 和激活分布
+backward：各层梯度分布
+update：更新尺度相对于参数尺度</code></pre>
+<p>这些指标用于提出和验证假设，没有脱离架构与训练阶段的万能阈值。</p>
+<h1 id="implementation">第二阶段 · 先写诊断工具</h1>
+<h2 id="todo-1-权重尺度recommended_weight_std">TODO 1 ·
+权重尺度：<code>recommended_weight_std</code></h2>
+<p>本 Lab 使用规则：</p>
+<pre class="text"><code>std = gain / sqrt(fan_in)</code></pre>
+<p><code>fan_in</code>
+是一个输出单元接收的输入数量。它必须为正。<code>gain</code>
+根据非线性调整，tanh 常用 <code>5/3</code>。</p>
+<p>现在先把它当作控制初始激活尺度的规则；“为什么是平方根”留到<a
+href="#variance-derivation">后置推导</a>。</p>
+<p>运行：</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py <span class="at">-k</span> weight_std</span></code></pre></div>
+<p>公开检查：<code>fan_in=25, gain=1</code> 时结果为
+<code>0.2</code>；<code>gain=5/3</code> 时为 <code>1/3</code>。</p>
+<h2 id="todo-2-描述一个张量tensor_statistics">TODO 2 ·
+描述一个张量：<code>tensor_statistics</code></h2>
+<p>返回普通 Python floats：</p>
+<pre class="text"><code>mean、std、min、max、zero_fraction</code></pre>
+<p>约定：</p>
+<ul>
+<li>使用总体标准差，即 <code>unbiased=False</code>。</li>
+<li>测量前 detach，不把诊断图表接进训练图。</li>
+<li>明确定义空张量行为，不能等到 NaN 才发现没有数据。</li>
+</ul>
+<p>运行：</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py <span class="at">-k</span> tensor</span></code></pre></div>
+<p>对 <code>[-1, 0, 1, 0]</code>，均值是 0，总体标准差是
+<code>sqrt(0.5)</code>，零值比例是 <code>0.5</code>。</p>
+<h2 id="todo-3-测量-tanh-饱和tanh_saturation_fraction">TODO 3 · 测量
+tanh 饱和：<code>tanh_saturation_fraction</code></h2>
+<p>统计：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(activations.<span class="bu">abs</span>() <span class="op">&gt;</span> threshold)</span></code></pre></div>
+<p>所占比例。本 Lab 默认阈值为 <code>0.97</code>，并要求
+<code>0 &lt;= threshold &lt; 1</code>。正负两端都算饱和，所以要取绝对值。</p>
+<p>运行：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py <span class="at">-k</span> saturation</span></code></pre></div>
+<h2 id="todo-4-分层看梯度gradient_statistics">TODO 4 ·
+分层看梯度：<code>gradient_statistics</code></h2>
+<p>对每个已有 <code>.grad</code> 的参数复用
+<code>tensor_statistics</code>。如果请求的参数没有梯度，抛出清晰错误，不要静默跳过。</p>
+<p>比较有价值的通常不是“某层梯度是否小于某个固定数”，而是：</p>
+<ul>
+<li>相近层之间是否差几个数量级；</li>
+<li>是否大量梯度恰好为 0；</li>
+<li>前层与后层是否严重失衡；</li>
+<li>改变初始化后，同一 seed 下分布怎样变化。</li>
+</ul>
+<p>运行：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py <span class="at">-k</span> gradient</span></code></pre></div>
+<h2 id="todo-5-比较更新与参数update_to_data_ratio">TODO 5 ·
+比较更新与参数：<code>update_to_data_ratio</code></h2>
+<p>对参数 <code>p</code> 和学习率 <code>lr</code>，本 Lab 返回：</p>
+<pre class="text"><code>log10(std(lr * p.grad) / (std(p.data) + eps))</code></pre>
+<p>两者都使用总体标准差，并要求已有梯度。</p>
+<ul>
+<li>比率极小：更新相对于参数很慢。</li>
+<li>比率极大：更新可能破坏已学结构。</li>
+<li>具体合理范围依赖模型和训练阶段，应比较趋势与层间差异。</li>
+</ul>
+<p>公开检查中，<code>p=[-1,1]</code>、<code>grad=[-0.1,0.1]</code>、<code>lr=0.1</code>
+时，结果为 <code>-2</code>。</p>
+<p>运行：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py <span class="at">-k</span> update</span></code></pre></div>
+<h2 id="todo-6-保存分布图save_distribution_plot">TODO 6 ·
+保存分布图：<code>save_distribution_plot</code></h2>
+<p>把多个张量 detach 到 CPU，画带标签的重叠密度直方图，保存后关闭
+figure。图像用于观察整体分布和离群值，不替代前面的数值表。</p>
+<p>运行：</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span> 02-makemore/03-diagnostics/check_lab03_diagnostics.py</span></code></pre></div>
+<h1 id="training">第三阶段 · 用受控实验回答原因</h1>
+<h2 id="只改变初始化">1. 只改变初始化</h2>
+<p>复用 Lab 02 的同一个 MLP，比较：</p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th style="text-align: right;">Hidden weight scale</th>
+<th style="text-align: right;">Output weight scale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bad</td>
+<td style="text-align: right;"><code>1.0</code></td>
+<td style="text-align: right;"><code>1.0</code></td>
+</tr>
+<tr>
+<td>Controlled</td>
+<td style="text-align: right;"><code>5/3 / sqrt(fan_in)</code></td>
+<td style="text-align: right;"><code>0.01</code></td>
+</tr>
+<tr>
+<td>Too small</td>
+<td style="text-align: right;"><code>0.01 / sqrt(fan_in)</code></td>
+<td style="text-align: right;"><code>0.001</code></td>
+</tr>
+</tbody>
+</table>
+<p>保持完全一致：</p>
+<ul>
+<li>数据 split 和 batch 顺序；</li>
+<li>网络结构；</li>
+<li>optimizer、学习率、训练步数；</li>
+<li>随机 seed 和评估方式。</li>
+</ul>
+<p>否则无法把差异归因于初始化。</p>
+<h2 id="按-forward-backward-update-收集证据">2. 按 forward → backward →
+update 收集证据</h2>
+<p>每组保存：</p>
+<ol type="1">
+<li>step 0 的 logits 分布与初始 loss。</li>
+<li>tanh 激活分布、直方图和饱和比例。</li>
+<li>训练中期的各层梯度标准差和零梯度比例。</li>
+<li>各层 update/data ratio。</li>
+<li>train/dev loss 曲线。</li>
+</ol>
+<p>在 <code>notes.md</code> 先写预测，再写结果。诊断顺序固定为：</p>
+<pre class="text"><code>建立均匀 loss 基线
+-&gt; 看 forward 分布
+-&gt; 看梯度
+-&gt; 看更新尺度
+-&gt; 只改变一个原因
+-&gt; 用同一 seed 重跑</code></pre>
+<h2 id="结果怎样变成结论">3. 结果怎样变成结论</h2>
+<table>
+<thead>
+<tr>
+<th>观察</th>
+<th>可检验的假设</th>
+<th>下一项证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始 loss 远高于 <code>log(V)</code></td>
+<td>输出 logits 过大</td>
+<td>step 0 logits 分布</td>
+</tr>
+<tr>
+<td>tanh 大量接近 ±1</td>
+<td>隐藏预激活过大</td>
+<td>饱和比例与梯度</td>
+</tr>
+<tr>
+<td>前层梯度接近 0</td>
+<td>饱和或深层传播问题</td>
+<td>分层梯度对照</td>
+</tr>
+<tr>
+<td>几步后 loss 爆炸</td>
+<td>更新尺度过大</td>
+<td>update/data ratio</td>
+</tr>
+<tr>
+<td>激活全接近 0</td>
+<td>权重过小或路径失活</td>
+<td>激活 std 与梯度</td>
+</tr>
+</tbody>
+</table>
+<p>“loss 正常下降但大量 tanh
+饱和”就是本课要寻找的典型反例：一个标量改善了，内部训练动力学仍可能不健康。</p>
+<h1 id="derivations">第四阶段 · 公式推导（实验后选读）</h1>
+<h2 id="initial-loss-derivation">1. 为什么均匀分类的初始 loss 是
+<code>log(V)</code></h2>
+<p>若 <span class="math inline">\(V\)</span> 个类别每个概率都是 <span
+class="math inline">\(1/V\)</span>，真实类别的 NLL 为：</p>
+<p><span class="math display">\[
+-\log(1/V)=\log V.
+\]</span></p>
+<p>每个样本都相同，平均后仍为 <span class="math inline">\(\log
+V\)</span>。若 logits 很大且真实类别不是模型偏爱的类别，<span
+class="math inline">\(p_y\)</span> 很小，<span
+class="math inline">\(-\log p_y\)</span> 就会高于这个基线。</p>
+<h2 id="tanh-饱和为什么让梯度变小">2. tanh 饱和为什么让梯度变小</h2>
+<p>令 <span class="math inline">\(h=\tanh(x)\)</span>：</p>
+<p><span class="math display">\[
+\frac{dh}{dx}=1-h^2.
+\]</span></p>
+<p>当 <span class="math inline">\(|h|\to1\)</span>，<span
+class="math inline">\(1-h^2\to0\)</span>。上游梯度传到预激活 <span
+class="math inline">\(x\)</span>
+时还要乘这一项，因此饱和单元向后传递的梯度很小。</p>
+<p>阈值 <code>0.97</code> 只是本 Lab
+的测量约定，不是数学上的绝对分界。</p>
+<h2 id="variance-derivation">3. 为什么权重标准差随
+<code>1/sqrt(fan_in)</code> 缩放</h2>
+<p>考虑一个预激活：</p>
+<p><span class="math display">\[
+z=\sum_{i=1}^{n}x_iw_i.
+\]</span></p>
+<p>在零均值、输入和权重相互独立、各项同分布的简化假设下：</p>
+<p><span class="math display">\[
+\operatorname{Var}(z)
+\approx n\,\operatorname{Var}(x)\operatorname{Var}(w).
+\]</span></p>
+<p>若希望 <span class="math inline">\(\operatorname{Var}(z)\)</span> 与
+<span class="math inline">\(\operatorname{Var}(x)\)</span>
+接近，就让：</p>
+<p><span class="math display">\[
+n\operatorname{Var}(w)\approx1
+\quad\Rightarrow\quad
+\operatorname{std}(w)\propto\frac1{\sqrt n}.
+\]</span></p>
+<p>这里的 <span class="math inline">\(n\)</span> 就是
+fan-in。真实网络中的相关性、非线性和训练过程会破坏这些简化假设，所以它是初始化设计原则，不是逐层方差永远不变的保证。</p>
+<h2 id="为什么比较-updatedata而不是只看梯度">4. 为什么比较
+update/data，而不是只看梯度</h2>
+<p>一次 SGD 更新为 <span class="math inline">\(\Delta
+p=-\eta\,p.grad\)</span>。参数尺度是 <span
+class="math inline">\(\operatorname{std}(p)\)</span>，更新尺度可用 <span
+class="math inline">\(\operatorname{std}(\eta\,p.grad)\)</span>
+表示，因此：</p>
+<p><span class="math display">\[
+r=\frac{\operatorname{std}(\eta\,p.grad)}
+{\operatorname{std}(p)+\varepsilon},
+\qquad
+\log_{10}r
+\]</span></p>
+<p>把相对尺度放到便于观察数量级的坐标上。它不直接告诉你 loss
+会升还是降，只提示更新相对于参数是否过小或过大。</p>
+<h2 id="自测">自测</h2>
+<ol type="1">
+<li>为什么 loss 下降仍可能伴随严重 tanh 饱和？</li>
+<li>为什么最终输出层常用更小初始化，而隐藏层不能全部置零？</li>
+<li>哪个指标区分“梯度大”和“相对参数的更新大”？</li>
+<li>为什么比较初始化时必须固定 batch 顺序和 seed？</li>
+<li>哪些结论需要跨层比较，不能只看一个张量？</li>
+</ol>
+<h2 id="阅读">阅读</h2>
+<ul>
+<li><a href="https://pytorch.org/docs/stable/nn.init.html">PyTorch
+initialization 文档</a></li>
+<li>Glorot &amp; Bengio, <em>Understanding the difficulty of training
+deep feedforward neural networks</em></li>
+<li>He et al., <em>Delving Deep into Rectifiers</em></li>
+</ul>
+<p>先对照文档理解 fan-in 和 gain；论文用于完成实验后的深入阅读。</p>
+</body>
+</html>

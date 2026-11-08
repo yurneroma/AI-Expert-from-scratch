@@ -11,12 +11,14 @@ autograd 只用作独立验证器。
 
 ## Before Coding
 
-阅读 [slides.md](slides.md)，在纸上推导：
+不需要先在纸上推完整张图。按 [自学讲义](slides.md)（[浏览器版](slides.html)）分段做：
 
-1. mean 对每个输入的导数。
-2. broadcast addition 的梯度为什么要沿某些轴求和。
-3. embedding indexing backward 为什么必须累加重复 index。
-4. softmax + cross entropy 合并后 logits 梯度的简洁形式。
+1. 先读[直觉与 forward](slides.md#intuition)，运行已有 `forward_loss`，写 shape ledger。
+2. 进入[分段实现](slides.md#implementation)，从 logits 开始，依次通过 output layer、BatchNorm 和全参数检查。
+3. 进入[对齐与故障实验](slides.md#training)，完成 `compare_gradients`，再故意删掉一个 reduction 观察失败。
+4. 最后回看[局部规则推导](slides.md#derivations)，把刚写过的代码逐条对上数学。
+
+`notes.md` 先记录 forward 图和每段使用的规则，不要求在 TODO 前交出完整推导。
 
 ## Student File
 

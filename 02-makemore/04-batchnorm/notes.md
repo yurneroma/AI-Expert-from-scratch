@@ -1,11 +1,16 @@
 # Lab 04 Notes - BatchNorm
 
-## Pre-lab
+## Intuition
 
 1. 2-D / 3-D 的统计维度：
-2. gamma/beta 的作用：
+2. batch stats、running stats、gamma/beta 的区别：
 3. eval 为什么使用 running stats：
-4. Linear bias 为什么冗余：
+
+## Implementation Checkpoints
+
+1. training/eval 各走哪条路径：
+2. running statistics 何时更新、是否求导：
+3. Linear bias 为什么通常省略：
 
 ## State Contract
 

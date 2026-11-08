@@ -1,11 +1,22 @@
 # Lab 02 Notes - Context MLP
 
-## Pre-lab
+## Intuition
+
+1. 一个名字的滑动 context 示例：
+2. MLP 比 bigram 多看到了什么：
+3. 按 word split 的原因：
+
+## Forward Checkpoints
 
 1. embedding lookup shape:
-2. 按 word split 的原因：
-3. embedding lookup 的梯度：
-4. dev/test 的角色：
+2. 哪个参数随 context 长度增长：
+3. dev/test 的角色：
+
+## Training Checkpoints
+
+1. mini-batch loss 为什么不必单调：
+2. embedding lookup 的梯度为什么会累加：
+3. 训练和采样必须共用哪些约定：
 
 ## Shape Ledger
 
