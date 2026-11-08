@@ -61,3 +61,19 @@ def test_distribution_plot_creates_nonempty_file(tmp_path):
   assert output == tmp_path / "distributions.png"
   assert output.is_file() and output.stat().st_size > 0
 
+
+
+def test_tensor_statistics_reject_empty_input():
+  with pytest.raises(ValueError, match="empty"):
+    tensor_statistics(torch.tensor([]))
+
+
+def test_saturation_rejects_invalid_threshold():
+  with pytest.raises(ValueError, match="threshold"):
+    tanh_saturation_fraction(torch.tensor([0.0]), threshold=1.0)
+
+
+def test_update_ratio_requires_an_existing_gradient():
+  parameter = torch.ones(2, requires_grad=True)
+  with pytest.raises(ValueError, match="grad"):
+    update_to_data_ratio(parameter, learning_rate=0.1)

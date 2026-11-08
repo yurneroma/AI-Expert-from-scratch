@@ -12,8 +12,8 @@ def recommended_weight_std(fan_in: int, gain: float = 1.0) -> float:
 
 
 def tensor_statistics(tensor: torch.Tensor) -> dict[str, float]:
-  """Return mean, population std, min, max, and zero_fraction as floats."""
-  # TODO 2: detach before measuring and define behavior for empty tensors.
+  """Return population statistics as floats; raise ValueError for empty input."""
+  # TODO 2: detach before measuring and reject tensors with zero elements.
   raise NotImplementedError("TODO 2: implement tensor_statistics")
 
 

@@ -79,3 +79,12 @@ def test_all_parameters_match_autograd_and_report_is_complete():
   assert all(set(item) == {"close", "exact", "max_abs_error", "relative_error"}
              for item in report.values())
 
+
+
+def test_forward_supports_batch_and_time_singletons():
+  parameters = initialize_backprop_parameters(
+    vocab_size=5, block_size=1, embedding_dim=2, hidden_dim=4, seed=7
+  )
+  loss, cache = forward_loss(parameters, torch.tensor([[1]]), torch.tensor([2]))
+  assert loss.ndim == 0
+  assert cache["logits"].shape == (1, 5)

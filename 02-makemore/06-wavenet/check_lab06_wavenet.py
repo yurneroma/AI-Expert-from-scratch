@@ -86,3 +86,28 @@ def test_sample_restores_training_mode_and_obeys_contract():
   assert samples == ["", "", ""]
   assert model.training
 
+
+
+def test_model_batch_size_one_keeps_batch_dimension():
+  model = WaveNetNameModel(
+    vocab_size=5, block_size=4, embedding_dim=2, hidden_dim=4
+  )
+  assert model(torch.randint(0, 5, (1, 4))).shape == (1, 5)
+
+
+def test_sample_restores_eval_mode():
+  model = WaveNetNameModel(
+    vocab_size=2, block_size=4, embedding_dim=2, hidden_dim=4
+  ).eval()
+  with torch.no_grad():
+    for parameter in model.parameters():
+      parameter.zero_()
+    model.head.bias.copy_(torch.tensor([100.0, -100.0]))
+  sample_wavenet(
+    model,
+    {".": 0, "a": 1},
+    {0: ".", 1: "a"},
+    torch.Generator().manual_seed(1),
+    n_samples=1,
+  )
+  assert not model.training

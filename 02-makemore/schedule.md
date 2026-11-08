@@ -8,13 +8,13 @@
 
 | 周 / 预算 | Lab | 阅读 | 验收产出 | 状态 / 完成日期 |
 |---|---|---|---|---|
-| W1 · 10h | [01 · Bigram](01-bigram/README.md) | [自学讲义](01-bigram/self-study.md) | 边界 token、计数/神经 bigram、NLL 与采样；8 项检查 | 下一步 / — |
-| W1-2 · 12h | [02 · Context MLP](02-mlp/README.md) | [自学讲义](02-mlp/slides.md) | word split、embedding、训练/验证与采样；7 项检查 | 待做 / — |
-| W2 · 8h | [03 · 训练诊断](03-diagnostics/README.md) | [自学讲义](03-diagnostics/slides.md) | 初始化对照、饱和比例、梯度和更新统计；6 项检查 | 待做 / — |
-| W2 · 2h | [07 · 结课小结](07-capstone/README.md) | 回看 Lab 01-03 的图和 notes | 同一 split 下的 Bigram/MLP 对照表；口头解释训练闭环 | 待做 / — |
-| 选修 · 6-8h | [04 · BatchNorm](04-batchnorm/README.md) | [自学讲义](04-batchnorm/slides.md) | train/eval 和 running statistics；6 项检查 | 选修 / — |
-| 选修 · 8-12h | [05 · Tensor Backprop](05-backprop/README.md) | [自学讲义](05-backprop/slides.md) | 完整 tensor 梯度与 autograd 对齐；4 项检查 | 选修 / — |
-| 选修 · 8-12h | [06 · WaveNet](06-wavenet/README.md) | [自学讲义](06-wavenet/slides.md) | 层级 receptive field；依赖 Lab 04；6 项检查 | 选修 / — |
+| W1 · 10h | [01 · Bigram](01-bigram/README.md) | [自学讲义](01-bigram/self-study.md) | 边界 token、计数/神经 bigram、NLL 与采样；全部公开检查 | 下一步 / — |
+| W1-2 · 12h | [02 · Context MLP](02-mlp/README.md) | [自学讲义](02-mlp/slides.md) | word split、embedding、训练/验证与采样；全部公开检查 | 待做 / — |
+| W2 · 8h | [03 · 训练诊断](03-diagnostics/README.md) | [自学讲义](03-diagnostics/slides.md) | 初始化对照、饱和比例、梯度和更新统计；全部公开检查 | 待做 / — |
+| W2 · 2h | [07 · 结课小结](07-capstone/README.md) | [slides](07-capstone/slides.md) · 回看 Lab 01-03 的图和 notes | 同一 split 下的 Bigram/MLP 对照表；口头解释训练闭环 | 待做 / — |
+| 选修 · 6-8h | [04 · BatchNorm](04-batchnorm/README.md) | [自学讲义](04-batchnorm/slides.md) | train/eval 和 running statistics；全部公开检查 | 选修 / — |
+| 选修 · 8-12h | [05 · Tensor Backprop](05-backprop/README.md) | [自学讲义](05-backprop/slides.md) | 完整 tensor 梯度与 autograd 对齐；全部公开检查 | 选修 / — |
+| 选修 · 8-12h | [06 · WaveNet](06-wavenet/README.md) | [自学讲义](06-wavenet/slides.md) | 层级 receptive field；依赖 Lab 04；全部公开检查 | 选修 / — |
 
 选修保留原编号，方便回看既有练习。Lab 03 后只需额外口头推导 `softmax + CE`、一次 affine backward 和 embedding 重复 index 的梯度累加；完整 BN backward 可以延后。
 

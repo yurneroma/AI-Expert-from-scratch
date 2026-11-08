@@ -32,8 +32,8 @@ def counts_to_probabilities(
     counts: torch.Tensor,
     smoothing: float = 1.0,
 ) -> torch.Tensor:
-  """Apply additive smoothing and normalize each row to sum to one."""
-  # TODO 3: preserve row semantics and return floating-point probabilities.
+  """Normalize a square count table; require finite, nonnegative smoothing."""
+  # TODO 3: validate shape/smoothing, preserve rows, and return float probabilities.
   raise NotImplementedError("TODO 3: implement counts_to_probabilities")
 
 
@@ -42,7 +42,7 @@ def average_nll(
     probabilities: torch.Tensor,
     stoi: dict[str, int],
 ) -> float:
-  """Return mean negative log-likelihood over all boundary-aware bigrams."""
+  """Return mean NLL over boundary-aware bigrams; reject an empty word list."""
   # TODO 4: index P[current, next], accumulate log probabilities, and average.
   raise NotImplementedError("TODO 4: implement average_nll")
 

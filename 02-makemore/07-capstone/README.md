@@ -6,6 +6,16 @@
 
 这一步不再学新公式，重点是：**收齐证据 → 公平比较 → 只改一个变量 → 检查能否复现 → 口头讲清。**
 
+## Start Here / Checks
+
+按 [slides](slides.md) 的[背景](slides.md#intuition)、[结果表检查](slides.md#implementation)、[对照实验](slides.md#training)和[解释边界](slides.md#derivations)进行。`lab07_capstone.py` 保留两个 TODO，用于检查模型对比和 ablation 表格：
+
+```bash
+uv run pytest -q 02-makemore/07-capstone/check_lab07_capstone.py -k comparison
+uv run pytest -q 02-makemore/07-capstone/check_lab07_capstone.py -k ablation
+uv run pytest -q 02-makemore/07-capstone/check_lab07_capstone.py
+```
+
 ## 1. 先收齐已有结果
 
 先填 `notes.md` 的结果清单：每个模型来自哪个 Lab、运行命令、artifact、数据 split 和 seed。缺少统一 split 或评估口径的结果不要直接并排比较，先重跑或明确标注不可比。

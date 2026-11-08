@@ -1,7 +1,4 @@
-"""Health checks for the provided course infrastructure.
-
-This file should pass before any student TODO is implemented.
-"""
+"""Health checks for course files and runtime, before student TODOs."""
 
 import importlib
 from pathlib import Path
@@ -19,20 +16,24 @@ LABS = {
   "04-batchnorm": "lab04_batchnorm",
   "05-backprop": "lab05_backprop",
   "06-wavenet": "lab06_wavenet",
+  "07-capstone": "lab07_capstone",
 }
 
 
 def test_required_course_material_exists():
-  expected = [
-    "schedule.md",
-    "01-bigram/self-study.md",
-    *[f"{lab}/{name}" for lab in LABS for name in ["README.md", "notes.md"]],
-    *[f"{lab}/slides.md" for lab in LABS if lab != "01-bigram"],
-    "07-capstone/README.md",
-    "07-capstone/notes.md",
-  ]
+  expected = ["README.md", "schedule.md", "01-bigram/self-study.md"]
+  for lab in LABS:
+    expected += [f"{lab}/{name}" for name in ("README.md", "notes.md")]
+  expected += [f"{lab}/slides.md" for lab in LABS if lab != "01-bigram"]
   missing = [path for path in expected if not (PROJECT_DIR / path).is_file()]
   assert not missing, f"missing course files: {missing}"
+
+
+def test_public_checks_and_browser_reading_exist():
+  for lab, module in LABS.items():
+    assert (PROJECT_DIR / lab / f"check_{module}.py").is_file()
+    reading = "self-study" if lab == "01-bigram" else "slides"
+    assert (PROJECT_DIR / lab / f"{reading}.html").is_file()
 
 
 def test_student_modules_import_without_executing_todos():
@@ -56,5 +57,5 @@ def test_runtime_has_required_pytorch_features():
 
 def test_student_files_exist_and_are_nonempty():
   student_files = [PROJECT_DIR / lab / f"{module}.py" for lab, module in LABS.items()]
-  assert len(student_files) == 6
+  assert len(student_files) == len(LABS)
   assert all(path.stat().st_size > 500 for path in student_files)

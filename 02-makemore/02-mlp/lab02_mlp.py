@@ -42,7 +42,7 @@ def initialize_parameters(
 
 
 def mlp_logits(parameters: Parameters, inputs: torch.Tensor) -> torch.Tensor:
-  """Run embedding lookup, context concatenation, tanh, and output affine."""
+  """Run the full forward pass; output is always (B,V), including B=1."""
   # TODO 4a: keep the batch dimension for both B=1 and larger batches.
   raise NotImplementedError("TODO 4a: implement mlp_logits")
 

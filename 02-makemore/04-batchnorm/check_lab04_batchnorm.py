@@ -1,5 +1,6 @@
 """Public checks for Lab 04."""
 
+import pytest
 import torch
 
 from lab04_batchnorm import BatchNorm1d, BatchNormMLP
@@ -82,3 +83,9 @@ def test_mlp_returns_logits_and_registers_all_parameters():
   assert logits.shape == (5, 7)
   logits.sum().backward()
   assert all(parameter.grad is not None for parameter in model.parameters())
+
+
+def test_batchnorm_rejects_unsupported_input_rank():
+  layer = BatchNorm1d(3)
+  with pytest.raises(ValueError, match="rank"):
+    layer(torch.randn(4))

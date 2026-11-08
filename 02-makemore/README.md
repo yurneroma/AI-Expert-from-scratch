@@ -23,7 +23,7 @@
 | 04（选修） | BatchNorm 与 train/eval 状态 | [讲义](04-batchnorm/slides.md) |
 | 05（选修） | 手写 tensor backward | [讲义](05-backprop/slides.md) |
 | 06（选修） | 分层 context 与 receptive field | [讲义](06-wavenet/slides.md) |
-| 07 | 同口径模型比较与结课小结 | [任务](07-capstone/README.md) |
+| 07 | 同口径模型比较与结课小结 | [讲义](07-capstone/slides.md) · [任务](07-capstone/README.md) |
 
 从仓库根目录先检查课程基础设施：
 

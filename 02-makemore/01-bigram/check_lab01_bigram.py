@@ -106,3 +106,28 @@ def test_neural_training_reduces_loss_and_returns_history(tiny_vocab):
   assert len(history) == 80
   assert history[-1] < history[0]
 
+
+
+def test_probabilities_reject_negative_smoothing():
+  counts = torch.ones((2, 2), dtype=torch.int64)
+  with pytest.raises(ValueError, match="smoothing"):
+    counts_to_probabilities(counts, smoothing=-0.1)
+
+
+def test_average_nll_rejects_empty_word_list():
+  probabilities = torch.full((2, 2), 0.5)
+  with pytest.raises(ValueError, match="empty"):
+    average_nll([], probabilities, {".": 0, "a": 1})
+
+
+def test_sample_enforces_max_length_for_nonterminating_model():
+  probabilities = torch.tensor([[0.0, 1.0], [0.0, 1.0]])
+  samples = sample_bigram(
+    probabilities,
+    {".": 0, "a": 1},
+    {0: ".", 1: "a"},
+    torch.Generator().manual_seed(3),
+    n_samples=1,
+    max_length=4,
+  )
+  assert samples == ["aaaa"]

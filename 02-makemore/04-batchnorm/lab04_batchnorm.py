@@ -19,7 +19,7 @@ class BatchNorm1d(nn.Module):
     raise NotImplementedError("TODO 1: implement BatchNorm1d.__init__")
 
   def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-    """Use batch statistics in training and running statistics in eval."""
+    """Support rank 2/3, reject other ranks, and separate train/eval state."""
     # TODO 2: support (B, C) and (B, T, C); update buffers only in training.
     raise NotImplementedError("TODO 2: implement BatchNorm1d.forward")
 

@@ -105,3 +105,14 @@ def test_sample_respects_count_and_max_length():
   )
   assert samples == ["aaaa"] * 3
 
+
+
+def test_split_rejects_invalid_fractions():
+  with pytest.raises(ValueError):
+    split_words(["a", "b"], train_fraction=0.9, dev_fraction=0.2)
+
+
+def test_logits_keep_batch_dimension_for_single_example():
+  parameters = initialize_parameters(3, 2, 2, 4, seed=1)
+  logits = mlp_logits(parameters, torch.tensor([[0, 1]]))
+  assert logits.shape == (1, 3)
