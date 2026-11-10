@@ -1,0 +1,77 @@
+{
+  "data": "/Users/mabin/AI/learning/02-makemore/data/names.txt",
+  "word_count": 32033,
+  "vocab_size": 27,
+  "seed": 2147483647,
+  "uniform_nll": 3.295836866004329,
+  "count_models": [
+    {
+      "smoothing": 0.1,
+      "nll": 2.4540605545043945,
+      "samples": [
+        "cexze",
+        "momasurailezitynn",
+        "konimittain",
+        "llayn",
+        "ka",
+        "da",
+        "staiyaubrtthrigotai",
+        "moliellavo",
+        "ke",
+        "teda"
+      ]
+    },
+    {
+      "smoothing": 1.0,
+      "nll": 2.4545769691467285,
+      "samples": [
+        "cexze",
+        "momasurailezitynn",
+        "konimittain",
+        "llayn",
+        "ka",
+        "da",
+        "staiyaubrtthrigotai",
+        "moliellavo",
+        "ke",
+        "teda"
+      ]
+    },
+    {
+      "smoothing": 10.0,
+      "nll": 2.46211576461792,
+      "samples": [
+        "cexze",
+        "momasurailezityha",
+        "konimittain",
+        "llayn",
+        "ka",
+        "da",
+        "staiyaubrtthrigotai",
+        "moliellavo",
+        "ke",
+        "teda"
+      ]
+    }
+  ],
+  "neural_bigram": {
+    "steps": 200,
+    "learning_rate": 20.0,
+    "regularization": 0.01,
+    "initial_objective": 3.768618583679199,
+    "final_objective": 2.4947004318237305,
+    "nll": 2.48030161857605,
+    "samples": [
+      "cexze",
+      "momasurailezityha",
+      "konimittain",
+      "llayn",
+      "ka",
+      "da",
+      "staiyauelalerigotai",
+      "moliellavo",
+      "ke",
+      "teda"
+    ]
+  }
+}

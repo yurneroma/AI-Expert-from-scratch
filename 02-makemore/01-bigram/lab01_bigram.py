@@ -159,8 +159,11 @@ def neural_bigram_loss(
     regularization: float = 0.0,
 ) -> torch.Tensor:
   """Return cross-entropy plus optional mean-square weight regularization."""
-  # TODO 7a: select one logits row per input and compute a differentiable loss.
-  raise NotImplementedError("TODO 7a: implement neural_bigram_loss")
+  logits = weights[inputs]
+  loss = torch.nn.functional.cross_entropy(logits, targets)
+  if regularization:
+    loss = loss + regularization * weights.square().mean()
+  return loss
 
 
 def train_neural_bigram(
@@ -173,6 +176,25 @@ def train_neural_bigram(
     seed: int = 2147483647,
 ) -> tuple[torch.Tensor, list[float]]:
   """Train logits with full-batch gradient descent and return loss history."""
-  # TODO 7b: initialize a leaf tensor, train it, and return detached weights.
-  raise NotImplementedError("TODO 7b: implement train_neural_bigram")
+  generator = torch.Generator().manual_seed(seed)
+  weights = torch.randn(
+    (vocab_size, vocab_size),
+    generator=generator,
+    requires_grad=True,
+  )
+  loss_history: list[float] = []
+
+  for _ in range(steps):
+    if weights.grad is not None:
+      weights.grad.zero_()
+
+    loss = neural_bigram_loss(weights, inputs, targets, regularization)
+    loss.backward()
+
+    with torch.no_grad():
+      weights -= learning_rate * weights.grad
+
+    loss_history.append(loss.item())
+
+  return weights.detach(), loss_history
 
